@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MiniCodex.App.ViewModels"
+             x:Class="MiniCodex.App.Views.AboutView"
+             x:DataType="vm:AboutViewModel">
+    <ScrollViewer>
+        <StackPanel Margin="32" Spacing="16" MaxWidth="600" HorizontalAlignment="Left">
+            <TextBlock Text="{Binding AppName}" FontSize="28" FontWeight="Bold"/>
+            <TextBlock Text="{Binding Tagline}" FontSize="14"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <TextBlock Text="{Binding VersionString}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+            <Separator Margin="0,8"/>
+
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" >
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding AuthorLabel}"
+                           FontWeight="SemiBold" Margin="0,0,12,8" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding AuthorValue}" VerticalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding LicenseLabel}"
+                           FontWeight="SemiBold" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="MIT" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Separator Margin="0,8"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="{Binding GitHubLabel}" Command="{Binding OpenGitHubCommand}" Padding="14,8"/>
+                <Button Content="{Binding BoostyLabel}" Command="{Binding OpenBoostyCommand}" Padding="14,8"
+                        Background="#E67E22" Foreground="White"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding CopyrightLabel}" FontSize="11" Margin="0,16,0,0"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

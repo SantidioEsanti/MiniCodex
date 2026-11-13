@@ -1,0 +1,221 @@
+{
+    "App":  {
+                "Name":  "MiniCodex",
+                "Version":  "0.0.0",
+                "Tagline":  "Portable-библиотека 3D-моделей"
+            },
+    "Menu":  {
+                 "Library":  "Библиотека",
+                 "Settings":  "Настройки",
+                 "About":  "О программе"
+             },
+    "Common":  {
+                   "Ok":  "ОК",
+                   "Cancel":  "Отмена",
+                   "Save":  "Сохранить",
+                   "Delete":  "Удалить",
+                   "Close":  "Закрыть",
+                   "Browse":  "Обзор…",
+                   "Loading":  "Загрузка…",
+                   "Error":  "Ошибка",
+                   "Warning":  "Предупреждение"
+               },
+    "Settings":  {
+                     "Title":  "Настройки",
+                     "Section":  {
+                                     "Sources":  "Папки-источники",
+                                     "AssetsRoot":  "Корень ассоциаций",
+                                     "Integrations":  "Слайсеры и редакторы",
+                                     "Appearance":  "Внешний вид",
+                                     "Database":  "База данных"
+                                 },
+                     "Theme":  {
+                                   "Label":  "Тема",
+                                   "Light":  "Светлая",
+                                   "Dark":  "Тёмная",
+                                   "Auto":  "Авто"
+                               },
+                     "Language":  {
+                                      "Label":  "Язык",
+                                      "Ru":  "Русский",
+                                      "En":  "English"
+                                  },
+                     "LowDiskSpace":  "Свободно менее 500 МБ на диске с данными.",
+                     "Integrations":  {
+                                          "SectionHeader":  "Интеграции",
+                                          "Hint":  "Автодетект или ручные пути.",
+                                          "Detect":  "Обнаружить",
+                                          "KindSlicer":  "Слайсеры",
+                                          "KindEditor":  "3D-редакторы",
+                                          "ColumnName":  "Приложение",
+                                          "ColumnPath":  "Путь",
+                                          "ColumnStatus":  "Статус",
+                                          "StatusAuto":  "Авто",
+                                          "StatusManual":  "Вручную",
+                                          "StatusMissing":  "Не найден",
+                                          "Browse":  "Обзор…",
+                                          "Clear":  "Очистить"
+                                      }
+                 },
+    "Library":  {
+                    "Title":  "Библиотека",
+                    "SearchPlaceholder":  "Поиск по имени, тегу, автору…",
+                    "Empty":  "Пока нет моделей. Нажмите «Сканировать папку».",
+                    "ScanButton":  "Сканировать папку",
+                    "ScanFolderTitle":  "Выберите папку-источник",
+                    "Loading":  "Загрузка библиотеки…",
+                    "ModelsCount":  "Моделей: {0}",
+                    "Scanning":  "Сканирование…",
+                    "ScanningProgress":  "Сканирование: {0}/{1} (+{2}, ~{3}, ={4})",
+                    "ServicesNotInitialized":  "Сервисы не инициализированы.",
+                    "TagsHeader":  "Теги",
+                    "AllModels":  "Все модели",
+                    "Hover":  {
+                                  "TotalSize":  "Общий размер",
+                                  "Polygons":  "Полигоны",
+                                  "Files":  "Файлы",
+                                  "Status":  "Статус",
+                                  "PolygonsFormat":  "{0:N0} полигонов",
+                                  "FilesFormat":  "{0} файлов"
+                              },
+                    "Status":  {
+                                   "Planned":  "В планах",
+                                   "Printed":  "Напечатано",
+                                   "Painted":  "Покрашено"
+                               },
+                    "QuickActions":  {
+                                         "ToSlicer":  "В слайсер",
+                                         "ToEditor":  "В редактор",
+                                         "ShowInFolder":  "В папке"
+                                     },
+                    "ContextMenu":  {
+                                        "CopyPath":  "Копировать путь",
+                                        "RemoveFromLibrary":  "Удалить из библиотеки",
+                                        "AddTag":  "Добавить тег",
+                                        "OpenCard":  "Открыть карточку"
+                                    },
+                    "MoreActions":  "Ещё…",
+                    "PreviewsProgress":  "Превью: {0} / {1}",
+                    "ScanWarning":  {
+                                        "Title":  "Долгое сканирование",
+                                        "Message":  "Это может занять много времени. Продолжить?",
+                                        "Continue":  "Продолжить",
+                                        "Cancel":  "Отмена"
+                                    }
+                },
+    "Card":  {
+                 "Tabs":  {
+                              "Info":  "Инфо",
+                              "Files":  "Файлы",
+                              "Associations":  "Ассоциации",
+                              "Tags":  "Теги",
+                              "Notes":  "Заметки",
+                              "Scale":  "Масштаб"
+                          },
+                 "Actions":  {
+                                 "Back":  "← Назад",
+                                 "Save":  "Сохранить",
+                                 "Orient":  "Ориентировать",
+                                 "RegeneratePreviews":  "Перегенерировать превью",
+                                 "OpenInSlicer":  "Открыть в слайсере",
+                                 "OpenInEditor":  "Открыть в редакторе",
+                                 "ShowInFolder":  "Показать в папке",
+                                 "ResetOrientation":  "Сброс",
+                                 "SaveOrientation":  "Сохранить ориентацию"
+                             },
+                 "Fields":  {
+                                "Title":  "Название",
+                                "Author":  "Автор",
+                                "SourceUrl":  "Источник (URL)",
+                                "Status":  "Статус",
+                                "Difficulty":  "Сложность покраса",
+                                "Notes":  "Заметки",
+                                "RealHeightMm":  "Реальная высота прототипа (мм)",
+                                "ModelHeightMm":  "Высота модели (мм)",
+                                "Scale":  "Целевой масштаб",
+                                "PrototypeType":  "Тип прототипа"
+                            },
+                 "FileRole":  {
+                                  "Main":  "Основной",
+                                  "Part":  "Часть",
+                                  "Presupported":  "Pre-supported",
+                                  "Hollowed":  "Полый",
+                                  "Variant":  "Вариант",
+                                  "Accessory":  "Аксессуар"
+                              },
+                 "AssetType":  {
+                                   "Reference":  "Референс",
+                                   "Render":  "Рендер",
+                                   "Photo":  "Фото готовой работы",
+                                   "Document":  "Документ",
+                                   "Profile":  "Профиль печати"
+                               },
+                 "Status":  {
+                                "Saved":  "Сохранено",
+                                "ErrorPrefix":  "Ошибка: ",
+                                "Regenerating":  "Обновление...",
+                                "Regenerated":  "Превью обновлены"
+                            },
+                 "Placeholder":  {
+                                     "AssociationsSoon":  "Ассоциации — в патче 0.3.1",
+                                     "TagsSoon":  "Теги — в патче 0.3.2"
+                                 },
+                 "ThreeD":  {
+                                "Loading":  "Загрузка 3D…",
+                                "FileNotChosen":  "Файл модели не выбран",
+                                "ParseFailed":  "Не удалось разобрать модель",
+                                "ErrorPrefix":  "Ошибка: "
+                            },
+                 "View":  {
+                              "MinLambert":  "Мягкость теней",
+                              "Wireframe":  "Каркас",
+                              "Quality":  "Качество"
+                          },
+                 "Assoc":  {
+                               "AddFile":  "Добавить файл",
+                               "AutoLink":  "Авто-привязка",
+                               "AutoLinkRunning":  "Поиск…",
+                               "AutoLinkResult":  "Привязано: {0}",
+                               "Imported":  "Импортировано: {0}",
+                               "DropHint":  "Перетащите файлы сюда",
+                               "Remove":  "Убрать",
+                               "DropReference":  "Перетащите референс сюда",
+                               "DropPhoto":  "Перетащите фото сюда"
+                           },
+                 "Tags":  {
+                              "Placeholder":  "Введите тег…",
+                              "Add":  "Добавить",
+                              "Empty":  "Тегов пока нет"
+                          },
+                 "Launch":  {
+                                "SlicerLabel":  "Слайсер:",
+                                "EditorLabel":  "Редактор:",
+                                "OpenInSlicer":  "Открыть в слайсере",
+                                "OpenInEditor":  "Открыть в редакторе",
+                                "NoSlicer":  "Слайсеры не настроены (Настройки)",
+                                "NoEditor":  "Редакторы не настроены (Настройки)"
+                            },
+                 "RemoveFromCard":  "Убрать из карточки",
+                 "Orientation":  {
+                                     "Saved":  "Ориентация сохранена"
+                                 },
+                 "Scale":  {
+                               "InvalidManual":  "Неверный формат масштаба",
+                               "AppliedFormat":  "Применено: 1:{0}"
+                           }
+             },
+    "About":  {
+                  "Title":  "О программе",
+                  "License":  "Лицензия MIT.",
+                  "Support":  "Поддержать автора",
+                  "Tagline":  "Портативная библиотека 3D-моделей",
+                  "Author":  "Автор",
+                  "GitHub":  "Репозиторий GitHub",
+                  "SupportAuthor":  "Поддержать автора",
+                  "Copyright":  "Копирайт (c) 2026 Santidio Esanti"
+              },
+    "Error":  {
+                  "ParseFailed":  "Не удалось разобрать файл модели",
+                  "FolderUnavailable":  "Папка-источник недоступна"
+              }
+}

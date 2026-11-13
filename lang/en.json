@@ -1,0 +1,221 @@
+{
+    "App":  {
+                "Name":  "MiniCodex",
+                "Version":  "0.0.0",
+                "Tagline":  "Portable 3D model library"
+            },
+    "Menu":  {
+                 "Library":  "Library",
+                 "Settings":  "Settings",
+                 "About":  "About"
+             },
+    "Common":  {
+                   "Ok":  "OK",
+                   "Cancel":  "Cancel",
+                   "Save":  "Save",
+                   "Delete":  "Delete",
+                   "Close":  "Close",
+                   "Browse":  "Browse…",
+                   "Loading":  "Loading…",
+                   "Error":  "Error",
+                   "Warning":  "Warning"
+               },
+    "Settings":  {
+                     "Title":  "Settings",
+                     "Section":  {
+                                     "Sources":  "Source folders",
+                                     "AssetsRoot":  "Associations root",
+                                     "Integrations":  "Slicers \u0026 editors",
+                                     "Appearance":  "Appearance",
+                                     "Database":  "Database"
+                                 },
+                     "Theme":  {
+                                   "Label":  "Theme",
+                                   "Light":  "Light",
+                                   "Dark":  "Dark",
+                                   "Auto":  "Auto"
+                               },
+                     "Language":  {
+                                      "Label":  "Language",
+                                      "Ru":  "Русский",
+                                      "En":  "English"
+                                  },
+                     "LowDiskSpace":  "Less than 500 MB free on the data drive.",
+                     "Integrations":  {
+                                          "SectionHeader":  "Integrations",
+                                          "Hint":  "Auto-detect or set paths manually.",
+                                          "Detect":  "Re-detect",
+                                          "KindSlicer":  "Slicers",
+                                          "KindEditor":  "3D Editors",
+                                          "ColumnName":  "Application",
+                                          "ColumnPath":  "Path",
+                                          "ColumnStatus":  "Status",
+                                          "StatusAuto":  "Auto",
+                                          "StatusManual":  "Manual",
+                                          "StatusMissing":  "Not found",
+                                          "Browse":  "Browse…",
+                                          "Clear":  "Clear"
+                                      }
+                 },
+    "Library":  {
+                    "Title":  "Library",
+                    "SearchPlaceholder":  "Search by name, tag, author…",
+                    "Empty":  "No models yet. Click “Scan folder”.",
+                    "ScanButton":  "Scan folder",
+                    "ScanFolderTitle":  "Select source folder",
+                    "Loading":  "Loading library…",
+                    "ModelsCount":  "Models: {0}",
+                    "Scanning":  "Scanning…",
+                    "ScanningProgress":  "Scanning: {0}/{1} (+{2}, ~{3}, ={4})",
+                    "ServicesNotInitialized":  "Services not initialized.",
+                    "TagsHeader":  "Tags",
+                    "AllModels":  "All models",
+                    "MoreActions":  "More...",
+                    "Hover":  {
+                                  "PolygonsFormat":  "{0:N0} tris",
+                                  "FilesFormat":  "{0} files",
+                                  "TotalSize":  "Total size",
+                                  "Polygons":  "Polygons",
+                                  "Files":  "Files",
+                                  "Status":  "Status"
+                              },
+                    "Status":  {
+                                   "Planned":  "Planned",
+                                   "Printed":  "Printed",
+                                   "Painted":  "Painted"
+                               },
+                    "QuickActions":  {
+                                         "ToSlicer":  "To slicer",
+                                         "ToEditor":  "To editor",
+                                         "ShowInFolder":  "Show in folder"
+                                     },
+                    "ContextMenu":  {
+                                        "CopyPath":  "Copy path",
+                                        "RemoveFromLibrary":  "Remove from library",
+                                        "AddTag":  "Add tag",
+                                        "OpenCard":  "Open card"
+                                    },
+                    "PreviewsProgress":  "Previews: {0} / {1}",
+                    "ScanWarning":  {
+                                        "Title":  "Long scan",
+                                        "Message":  "Large libraries with high-poly models may take 15-30 minutes or more. The app stays responsive and shows progress. Continue?",
+                                        "Continue":  "Continue",
+                                        "Cancel":  "Cancel"
+                                    }
+                },
+    "Card":  {
+                 "Tabs":  {
+                              "Info":  "Info",
+                              "Files":  "Files",
+                              "Associations":  "Associations",
+                              "Tags":  "Tags",
+                              "Notes":  "Notes",
+                              "Scale":  "Scale"
+                          },
+                 "Actions":  {
+                                 "Back":  "← Back",
+                                 "Save":  "Save",
+                                 "Orient":  "Orient",
+                                 "RegeneratePreviews":  "Regenerate previews",
+                                 "OpenInSlicer":  "Open in slicer",
+                                 "OpenInEditor":  "Open in editor",
+                                 "ShowInFolder":  "Show in folder",
+                                 "ResetOrientation":  "Reset",
+                                 "SaveOrientation":  "Save orientation"
+                             },
+                 "Fields":  {
+                                "Title":  "Title",
+                                "Author":  "Author",
+                                "SourceUrl":  "Source URL",
+                                "Status":  "Status",
+                                "Difficulty":  "Paint difficulty",
+                                "Notes":  "Notes",
+                                "RealHeightMm":  "Prototype real height (mm)",
+                                "ModelHeightMm":  "Model height (mm)",
+                                "Scale":  "Target scale",
+                                "PrototypeType":  "Prototype type"
+                            },
+                 "FileRole":  {
+                                  "Main":  "Main",
+                                  "Part":  "Part",
+                                  "Presupported":  "Pre-supported",
+                                  "Hollowed":  "Hollowed",
+                                  "Variant":  "Variant",
+                                  "Accessory":  "Accessory"
+                              },
+                 "AssetType":  {
+                                   "Reference":  "Reference",
+                                   "Render":  "Render",
+                                   "Photo":  "Photo",
+                                   "Document":  "Document",
+                                   "Profile":  "Print profile"
+                               },
+                 "Status":  {
+                                "Saved":  "Saved",
+                                "ErrorPrefix":  "Error: ",
+                                "Regenerating":  "Regenerating...",
+                                "Regenerated":  "Previews updated"
+                            },
+                 "Placeholder":  {
+                                     "AssociationsSoon":  "Associations — coming in 0.3.1",
+                                     "TagsSoon":  "Tags — coming in 0.3.2"
+                                 },
+                 "ThreeD":  {
+                                "Loading":  "Loading 3D…",
+                                "FileNotChosen":  "No model file selected",
+                                "ParseFailed":  "Failed to parse model",
+                                "ErrorPrefix":  "Error: "
+                            },
+                 "View":  {
+                              "MinLambert":  "Shadow softness",
+                              "Wireframe":  "Wireframe",
+                              "Quality":  "Quality"
+                          },
+                 "Assoc":  {
+                               "AddFile":  "Add file",
+                               "AutoLink":  "Auto-link",
+                               "AutoLinkRunning":  "Searching…",
+                               "AutoLinkResult":  "Linked: {0}",
+                               "Imported":  "Imported: {0}",
+                               "DropHint":  "Drop files here to attach",
+                               "Remove":  "Remove",
+                               "DropReference":  "Drop reference here",
+                               "DropPhoto":  "Drop photo here"
+                           },
+                 "Tags":  {
+                              "Placeholder":  "Enter tag…",
+                              "Add":  "Add",
+                              "Empty":  "No tags yet"
+                          },
+                 "Launch":  {
+                                "SlicerLabel":  "Slicer:",
+                                "EditorLabel":  "Editor:",
+                                "OpenInSlicer":  "Open in slicer",
+                                "OpenInEditor":  "Open in editor",
+                                "NoSlicer":  "No slicers configured (Settings)",
+                                "NoEditor":  "No editors configured (Settings)"
+                            },
+                 "RemoveFromCard":  "Remove from card",
+                 "Orientation":  {
+                                     "Saved":  "Orientation saved"
+                                 },
+                 "Scale":  {
+                               "InvalidManual":  "Invalid scale format",
+                               "AppliedFormat":  "Applied: 1:{0}"
+                           }
+             },
+    "About":  {
+                  "Title":  "About",
+                  "License":  "Licensed under MIT.",
+                  "Support":  "Support the author",
+                  "Tagline":  "Portable 3D model library",
+                  "Author":  "Author",
+                  "GitHub":  "GitHub repository",
+                  "SupportAuthor":  "Support the author",
+                  "Copyright":  "Copyright (c) 2026 Santidio Esanti"
+              },
+    "Error":  {
+                  "ParseFailed":  "Failed to parse mesh file",
+                  "FolderUnavailable":  "Source folder is unavailable"
+              }
+}

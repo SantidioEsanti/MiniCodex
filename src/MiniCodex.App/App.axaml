@@ -1,0 +1,121 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MiniCodex.App.ViewModels"
+             xmlns:views="clr-namespace:MiniCodex.App.Views"
+             x:Class="MiniCodex.App.App"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="vm:LibraryViewModel">
+            <views:LibraryView/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:ModelCardPageViewModel">
+            <views:ModelCardView/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:SettingsViewModel">
+            <views:SettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:AboutViewModel">
+            <views:AboutView/>
+        </DataTemplate>
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <Color x:Key="SystemAccentColor">#E67E22</Color>
+                    <Color x:Key="SystemAccentColorLight1">#EB9548</Color>
+                    <Color x:Key="SystemAccentColorLight2">#F0AB6F</Color>
+                    <Color x:Key="SystemAccentColorLight3">#F5C196</Color>
+                    <Color x:Key="SystemAccentColorDark1">#CC6E1C</Color>
+                    <Color x:Key="SystemAccentColorDark2">#B25F18</Color>
+                    <Color x:Key="SystemAccentColorDark3">#995013</Color>
+                    <SolidColorBrush x:Key="SystemAccentColorBrush" Color="#E67E22"/>
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="White"/>
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F2F2F2"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <Color x:Key="SystemAccentColor">#E67E22</Color>
+                    <Color x:Key="SystemAccentColorLight1">#EB9548</Color>
+                    <Color x:Key="SystemAccentColorLight2">#F0AB6F</Color>
+                    <Color x:Key="SystemAccentColorLight3">#F5C196</Color>
+                    <Color x:Key="SystemAccentColorDark1">#CC6E1C</Color>
+                    <Color x:Key="SystemAccentColorDark2">#B25F18</Color>
+                    <Color x:Key="SystemAccentColorDark3">#995013</Color>
+                    <SolidColorBrush x:Key="SystemAccentColorBrush" Color="#E67E22"/>
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#252525"/>
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1A1A1A"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <Style Selector="Window">
+            <Setter Property="FontFamily" Value="Inter, Segoe UI"/>
+            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="SelectionBrush" Value="#E67E22"/>
+            <Setter Property="SelectionForegroundBrush" Value="White"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+
+        <Style Selector="Button.statusActive">
+            <Setter Property="Background" Value="#E67E22"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="Button.star">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="2,0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+
+        <Style Selector="Button.star:pointerover">
+            <Setter Property="Background" Value="#20E67E22"/>
+        </Style>
+
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E67E22"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected">
+            <Setter Property="Background" Value="#E67E22"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E67E22"/>
+        </Style>
+
+        <Style Selector="Border.elevated">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BoxShadow" Value="0 2 8 0 #18000000"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BoxShadow" Value="0 2 8 0 #18000000"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.18"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.card:pointerover">
+            <Setter Property="BoxShadow" Value="0 4 16 0 #30000000"/>
+        </Style>
+    </Application.Styles>
+</Application>

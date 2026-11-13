@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MiniCodex.App.ViewModels"
+             x:Class="MiniCodex.App.Views.ModelCardTile"
+             x:DataType="vm:ModelCardViewModel">
+    <Border Classes="card" Width="220" Height="260" Margin="6" Padding="6">
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="{Binding ContextMenuOpenCard}" Command="{Binding OpenCommand}"/>
+                <MenuItem Header="{Binding ContextMenuCopyPath}" Command="{Binding CopyPathCommand}"/>
+                <MenuItem Header="{Binding ContextMenuAddTag}" Command="{Binding AddTagCommand}"/>
+                <MenuItem Header="{Binding QuickActionShowInFolder}" Command="{Binding ShowInFolderCommand}"/>
+                <Separator/>
+                <MenuItem Header="{Binding QuickActionToSlicer}" Command="{Binding ToSlicerCommand}" IsEnabled="{Binding CanOpenInSlicer}"/>
+                <MenuItem Header="{Binding QuickActionToEditor}" Command="{Binding ToEditorCommand}" IsEnabled="{Binding CanOpenInEditor}"/>
+                <Separator/>
+                <MenuItem Header="{Binding ContextMenuRemoveFromLibrary}" Command="{Binding RemoveFromLibraryCommand}"/>
+            </ContextMenu>
+        </Border.ContextMenu>
+        <Grid RowDefinitions="180,*,Auto">
+            <Border Grid.Row="0" Margin="4" Background="Transparent" CornerRadius="6" ClipToBounds="True">
+                <Image Source="{Binding PreviewImage}" Stretch="Uniform"/>
+            </Border>
+
+            <Border Grid.Row="0" VerticalAlignment="Bottom" IsVisible="{Binding IsHovered}"
+                    Background="#A0000000" CornerRadius="0,0,6,6" Padding="6,3" Margin="4,0,4,4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding TotalSizeText}" Foreground="White" FontSize="10"/>
+                    <TextBlock Text="{Binding PolygonsText}" Foreground="White" FontSize="10"/>
+                    <TextBlock Text="{Binding FileCountText}" Foreground="#D0D0D0" FontSize="10"
+                               IsVisible="{Binding HasMultipleFiles}"/>
+                </StackPanel>
+            </Border>
+
+            <Button Grid.Row="0"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="8" Padding="6,0" MinWidth="26" MinHeight="26"
+                    Content="&#x22EF;"
+                    ToolTip.Tip="{Binding MoreActionsTooltip}"
+                    IsVisible="{Binding IsHovered}">
+                <Button.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Header="{Binding ContextMenuOpenCard}" Command="{Binding OpenCommand}"/>
+                        <MenuItem Header="{Binding ContextMenuCopyPath}" Command="{Binding CopyPathCommand}"/>
+                        <MenuItem Header="{Binding ContextMenuAddTag}" Command="{Binding AddTagCommand}"/>
+                        <MenuItem Header="{Binding QuickActionShowInFolder}" Command="{Binding ShowInFolderCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="{Binding QuickActionToSlicer}" Command="{Binding ToSlicerCommand}" IsEnabled="{Binding CanOpenInSlicer}"/>
+                        <MenuItem Header="{Binding QuickActionToEditor}" Command="{Binding ToEditorCommand}" IsEnabled="{Binding CanOpenInEditor}"/>
+                        <Separator/>
+                        <MenuItem Header="{Binding ContextMenuRemoveFromLibrary}" Command="{Binding RemoveFromLibraryCommand}"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
+
+            <TextBlock Grid.Row="1" Text="{Binding Title}"
+                       FontWeight="Bold" TextTrimming="CharacterEllipsis"
+                       Margin="0,6,0,0"/>
+            <TextBlock Grid.Row="2" FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       Text="{Binding StatusText}"/>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MiniCodex.App.Views.ThreeDViewer">
+    <Grid>
+        <Border Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" CornerRadius="4">
+            <Image x:Name="PreviewHost" Stretch="Uniform"/>
+        </Border>
+        <TextBlock Text="{Binding ThreeDStatusText}"
+                   IsVisible="{Binding ThreeDStatusVisible}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                   FontSize="14"/>
+    </Grid>
+</UserControl>

@@ -1,0 +1,30 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore src/MiniCodex.sln
+      - name: Build
+        run: dotnet build src/MiniCodex.sln -c Release --no-restore
+      - name: Test
+        run: dotnet test src/MiniCodex.sln -c Release --no-build
+      - name: Publish portable
+        run: dotnet publish src/MiniCodex.App -c Release -r win-x64 --self-contained /p:PublishSingleFile=true -o dist/publish
+      - name: Zip artifact
+        run: Compress-Archive -Path dist/publish/* -DestinationPath dist/MiniCodex-win-x64.zip -Force
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MiniCodex-win-x64
+          path: dist/MiniCodex-win-x64.zip

@@ -1,0 +1,1 @@
+dotnet run --project "D:\AI\MiniCodex\src\MiniCodex.App\MiniCodex.App.csproj"

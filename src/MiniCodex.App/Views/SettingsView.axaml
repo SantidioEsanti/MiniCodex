@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MiniCodex.App.ViewModels"
+             x:Class="MiniCodex.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <ScrollViewer>
+        <StackPanel Margin="12">
+            <TextBlock Text="{Binding HeaderText}" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"/>
+
+            <TextBlock Text="{Binding IntegrationsHeader}" FontWeight="Bold" Margin="0,8,0,4"/>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                <TextBlock Text="{Binding HintText}" VerticalAlignment="Center"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                <Button Content="{Binding DetectButtonText}" Command="{Binding DetectCommand}"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding SlicersHeader}" FontWeight="SemiBold" Margin="0,8,0,4"/>
+            <Grid ColumnDefinitions="200,*,100,90,70" Margin="4,0,4,2">
+                <TextBlock Grid.Column="0" Text="{Binding ColumnNameText}" FontSize="11" Foreground="#888"/>
+                <TextBlock Grid.Column="1" Text="{Binding ColumnPathText}" FontSize="11" Foreground="#888"/>
+                <TextBlock Grid.Column="2" Text="{Binding ColumnStatusText}" FontSize="11" Foreground="#888"/>
+            </Grid>
+            <ItemsControl ItemsSource="{Binding SlicerRows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="200,*,100,90,70" Margin="4,2">
+                            <TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Text="{Binding CurrentPath}" IsReadOnly="True" Watermark="—" Margin="4,0"/>
+                            <TextBlock Grid.Column="2" Text="{Binding StatusText}" VerticalAlignment="Center" FontSize="11"/>
+                            <Button Grid.Column="3" Content="{Binding BrowseText}" Command="{Binding BrowseCommand}" Padding="6,0" Margin="2,0"/>
+                            <Button Grid.Column="4" Content="{Binding ClearText}" Command="{Binding ClearCommand}" Padding="6,0" Margin="2,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="{Binding EditorsHeader}" FontWeight="SemiBold" Margin="0,16,0,4"/>
+            <ItemsControl ItemsSource="{Binding EditorRows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="200,*,100,90,70" Margin="4,2">
+                            <TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Text="{Binding CurrentPath}" IsReadOnly="True" Watermark="—" Margin="4,0"/>
+                            <TextBlock Grid.Column="2" Text="{Binding StatusText}" VerticalAlignment="Center" FontSize="11"/>
+                            <Button Grid.Column="3" Content="{Binding BrowseText}" Command="{Binding BrowseCommand}" Padding="6,0" Margin="2,0"/>
+                            <Button Grid.Column="4" Content="{Binding ClearText}" Command="{Binding ClearCommand}" Padding="6,0" Margin="2,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
