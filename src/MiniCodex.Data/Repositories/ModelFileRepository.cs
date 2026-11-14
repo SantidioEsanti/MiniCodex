@@ -47,12 +47,12 @@ public class ModelFileRepository : IModelFileRepository
         await using var conn = await _factory.OpenAsync(ct);
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-INSERT INTO ModelFile(id, model_id, path, file_role, part_name, file_size_bytes, polygon_count, last_write_time_utc)
-VALUES($id, $model_id, $path, $file_role, $part_name, $file_size_bytes, $polygon_count, $last_write_time_utc)
+INSERT INTO ModelFile(id, model_id, path, file_role, part_name, file_size_bytes, polygon_count, last_write_time_utc, file_hash)
+VALUES($id, $model_id, $path, $file_role, $part_name, $file_size_bytes, $polygon_count, $last_write_time_utc, $file_hash)
 ON CONFLICT(id) DO UPDATE SET
     path = excluded.path, file_role = excluded.file_role, part_name = excluded.part_name,
     file_size_bytes = excluded.file_size_bytes, polygon_count = excluded.polygon_count,
-    last_write_time_utc = excluded.last_write_time_utc;";
+    last_write_time_utc = excluded.last_write_time_utc, file_hash = excluded.file_hash;";
         cmd.Parameters.AddWithValue("$id", f.Id);
         cmd.Parameters.AddWithValue("$model_id", f.ModelId);
         cmd.Parameters.AddWithValue("$path", f.Path);
@@ -61,6 +61,7 @@ ON CONFLICT(id) DO UPDATE SET
         cmd.Parameters.AddWithValue("$file_size_bytes", (object?)f.FileSizeBytes ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$polygon_count", (object?)f.PolygonCount ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$last_write_time_utc", f.LastWriteTimeUtc.HasValue ? f.LastWriteTimeUtc.Value.ToString("o") : DBNull.Value);
+        cmd.Parameters.AddWithValue("$file_hash", (object?)f.FileHash ?? DBNull.Value);
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
@@ -83,5 +84,6 @@ ON CONFLICT(id) DO UPDATE SET
         FileSizeBytes = r.IsDBNull(5) ? null : r.GetInt64(5),
         PolygonCount = r.IsDBNull(6) ? null : r.GetInt32(6),
         LastWriteTimeUtc = r.IsDBNull(7) ? null : DateTime.Parse(r.GetString(7), null, System.Globalization.DateTimeStyles.RoundtripKind),
+        FileHash = r.FieldCount > 8 && !r.IsDBNull(8) ? r.GetString(8) : null,
     };
 }

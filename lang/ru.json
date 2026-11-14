@@ -101,7 +101,41 @@
                                         "Message":  "Это может занять много времени. Продолжить?",
                                         "Continue":  "Продолжить",
                                         "Cancel":  "Отмена"
-                                    }
+                                    },
+                    "CollectionsHeader":  "Коллекции",
+                    "SaveFilterButton":  "Сохранить фильтр",
+                    "SaveFilterEmpty":  "Фильтр пуст - задайте поиск или тег.",
+                    "SaveFilterDialog":  {
+                        "Title":  "Название коллекции",
+                        "Placeholder":  "Введите имя",
+                        "Save":  "Сохранить",
+                        "Cancel":  "Отмена"
+                    },
+                    "DeleteCollection":  "Удалить коллекцию",
+                    "ClearColor":  "Сбросить цвет",
+                    "TagContextMenu":  {
+                        "Rename":  "Переименовать...",
+                        "Delete":  "Удалить",
+                        "CustomColor":  "Свой цвет..."
+                    },
+                    "RenameTagDialog":  {
+                        "Title":  "Переименовать тег",
+                        "Placeholder":  "Имя тега",
+                        "Save":  "Сохранить",
+                        "Cancel":  "Отмена"
+                    },
+                    "DeleteTagDialog":  {
+                        "Title":  "Удалить тег?",
+                        "Message":  "Удалить тег {0}? Связанных записей: {1}.",
+                        "Delete":  "Удалить",
+                        "Cancel":  "Отмена"
+                    },
+                    "ColorPickerDialog":  {
+                        "Title":  "Свой цвет",
+                        "Placeholder":  "#RRGGBB",
+                        "Save":  "Сохранить",
+                        "Cancel":  "Отмена"
+                    }
                 },
     "Card":  {
                  "Tabs":  {

@@ -29,6 +29,7 @@ public class ModelFile
     public long? FileSizeBytes { get; set; }
     public int? PolygonCount { get; set; }
     public DateTime? LastWriteTimeUtc { get; set; }
+    public string? FileHash { get; set; }
 }
 
 public class Asset

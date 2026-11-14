@@ -40,8 +40,19 @@ public class ModelRepository : IModelRepository
         sb.Append("WHERE 1=1 ");
         if (!string.IsNullOrEmpty(tagId))
         {
-            sb.Append("AND mt.tag_id = $tagId ");
-            cmd.Parameters.AddWithValue("$tagId", tagId);
+            var tags = tagId.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (tags.Length > 0)
+            {
+                sb.Append("AND mt.tag_id IN (");
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    var p = $"$tag{i}";
+                    if (i > 0) sb.Append(", ");
+                    sb.Append(p);
+                    cmd.Parameters.AddWithValue(p, tags[i]);
+                }
+                sb.Append(") ");
+            }
         }
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -57,6 +68,28 @@ public class ModelRepository : IModelRepository
         cmd.CommandText = sb.ToString();
         await using var r = await cmd.ExecuteReaderAsync(ct);
         while (await r.ReadAsync(ct)) result.Add(Map(r));
+        return result;
+    }
+
+    public async Task<IReadOnlyList<string>> GetDuplicateModelIdsAsync(CancellationToken ct = default)
+    {
+        var result = new List<string>();
+        await using var conn = await _factory.OpenAsync(ct);
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+            SELECT m.id 
+            FROM Model m 
+            JOIN ModelFile mf ON mf.model_id = m.id 
+            WHERE mf.file_hash IN (
+                SELECT file_hash 
+                FROM ModelFile 
+                WHERE file_hash IS NOT NULL AND file_hash != ''
+                GROUP BY file_hash 
+                HAVING COUNT(*) > 1
+            )
+            GROUP BY m.id;";
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        while (await r.ReadAsync(ct)) result.Add(r.GetString(0));
         return result;
     }
 

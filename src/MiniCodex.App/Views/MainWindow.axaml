@@ -2,12 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MiniCodex.App.Views.MainWindow"
         Title="{Binding Title}" Icon="/Assets/icon.ico"
+        Background="{DynamicResource AppBackgroundBrush}"
         Width="1100" Height="750">
+    <!-- patch 0.5.0a3 applied -->
     <Window.KeyBindings>
+    <!-- patch 0.5.0a3 applied -->
         <KeyBinding Gesture="Ctrl+F" Command="{Binding RequestFocusSearchCommand}"/>
     </Window.KeyBindings>
-    <Grid RowDefinitions="Auto,*">
-        <StackPanel Orientation="Horizontal" Spacing="8" Margin="8">
+    <Grid RowDefinitions="Auto,*" Background="Transparent">
+        <Border Background="{DynamicResource GlassPanelBackgroundBrush}" BorderBrush="{DynamicResource GlassPanelBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource CornerRadiusLarge}" Margin="8" Padding="8" BoxShadow="{DynamicResource GlassPanelShadow}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="{Binding LibraryButtonText}" Command="{Binding ShowLibraryCommand}"/>
             <Button Content="{Binding SettingsButtonText}" Command="{Binding ShowSettingsCommand}"/>
             <Button Content="{Binding AboutButtonText}" Command="{Binding ShowAboutCommand}"/>
@@ -21,6 +25,7 @@
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
         </StackPanel>
-        <ContentControl Grid.Row="1" Content="{Binding CurrentPage}"/>
+        </Border>
+        <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" Background="Transparent"/>
     </Grid>
 </Window>

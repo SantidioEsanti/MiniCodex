@@ -44,4 +44,30 @@ public class TagService : ITagService
 
     public Task<IReadOnlyList<TagWithUsage>> GetAllWithUsageAsync(CancellationToken ct = default)
         => _tags.GetAllWithUsageAsync(ct);
+
+    public async Task SetColorAsync(string tagId, string? color, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(tagId)) return;
+        var tag = await _tags.GetAsync(tagId, ct);
+        if (tag == null) return;
+        tag.Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
+        await _tags.UpsertAsync(tag, ct);
+    }
+
+    public async Task RenameAsync(string tagId, string newName, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(tagId)) return;
+        if (string.IsNullOrWhiteSpace(newName)) return;
+        var tag = await _tags.GetAsync(tagId, ct);
+        if (tag == null) return;
+        tag.Name = newName.Trim();
+        await _tags.UpsertAsync(tag, ct);
+    }
+
+    public async Task DeleteAsync(string tagId, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(tagId)) return;
+        await _modelTags.RemoveAllForTagAsync(tagId, ct);
+        await _tags.DeleteAsync(tagId, ct);
+    }
 }

@@ -20,6 +20,7 @@ public static class AppServices
     public static PreviewGenerator? PreviewGenerator { get; private set; }
     public static IAssetService? AssetService { get; private set; }
     public static ITagService? TagService { get; private set; }
+    public static ICollectionService? CollectionService { get; private set; }
     public static IIntegrationService? IntegrationService { get; private set; }
     public static AppPaths? Paths { get; private set; }
 
@@ -44,6 +45,7 @@ public static class AppServices
         AssetService = new AssetService(Assets, ModelFiles, thumbs, paths.AssetsDir, thumbsRoot);
 
         TagService = new TagService(new TagRepository(Factory), ModelTags);
+        CollectionService = new CollectionService(new CollectionRepository(Factory));
 
         if (OperatingSystem.IsWindows())
         {

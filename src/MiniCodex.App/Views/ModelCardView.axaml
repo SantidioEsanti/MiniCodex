@@ -59,19 +59,19 @@
                                     Command="{Binding SetStatusCommand}" CommandParameter="planned"
                                     ToolTip.Tip="{Binding StatusPlannedLabel}"
                                     Padding="10,6" MinWidth="44" MinHeight="32">
-                                <TextBlock Text="&#xE823;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="16"/>
+                                <PathIcon Data="{DynamicResource IconClock}" Width="18" Height="18" />
                             </Button>
                             <Button Classes.statusActive="{Binding IsPrinted}"
                                     Command="{Binding SetStatusCommand}" CommandParameter="printed"
                                     ToolTip.Tip="{Binding StatusPrintedLabel}"
                                     Padding="10,6" MinWidth="44" MinHeight="32">
-                                <TextBlock Text="&#xE749;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="16"/>
+                                <PathIcon Data="{DynamicResource Icon3DPrinter}" Width="18" Height="18" />
                             </Button>
                             <Button Classes.statusActive="{Binding IsPainted}"
                                     Command="{Binding SetStatusCommand}" CommandParameter="painted"
                                     ToolTip.Tip="{Binding StatusPaintedLabel}"
                                     Padding="10,6" MinWidth="44" MinHeight="32">
-                                <TextBlock Text="&#xE8FB;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="16"/>
+                                <PathIcon Data="{DynamicResource IconBrush}" Width="18" Height="18" />
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="0">

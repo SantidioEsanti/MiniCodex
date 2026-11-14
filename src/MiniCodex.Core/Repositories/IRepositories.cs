@@ -14,6 +14,7 @@ public interface IModelRepository
     Task<Model?> GetAsync(string id, CancellationToken ct = default);
     Task<IReadOnlyList<Model>> GetAllAsync(CancellationToken ct = default);
     Task<IReadOnlyList<Model>> SearchAsync(string? query, string? tagId, CancellationToken ct = default);
+    Task<IReadOnlyList<string>> GetDuplicateModelIdsAsync(CancellationToken ct = default);
     Task UpdateStatusDifficultyAsync(string id, string? status, int? difficulty, CancellationToken ct = default);
     Task UpsertAsync(Model model, CancellationToken ct = default);
     Task DeleteAsync(string id, CancellationToken ct = default);

@@ -101,7 +101,41 @@
                                         "Message":  "Large libraries with high-poly models may take 15-30 minutes or more. The app stays responsive and shows progress. Continue?",
                                         "Continue":  "Continue",
                                         "Cancel":  "Cancel"
-                                    }
+                                    },
+                    "CollectionsHeader":  "Collections",
+                    "SaveFilterButton":  "Save filter",
+                    "SaveFilterEmpty":  "Filter is empty - set a search or a tag first.",
+                    "SaveFilterDialog":  {
+                        "Title":  "Name your collection",
+                        "Placeholder":  "Collection name",
+                        "Save":  "Save",
+                        "Cancel":  "Cancel"
+                    },
+                    "DeleteCollection":  "Delete collection",
+                    "ClearColor":  "Clear color",
+                    "TagContextMenu":  {
+                        "Rename":  "Rename...",
+                        "Delete":  "Delete",
+                        "CustomColor":  "Custom color..."
+                    },
+                    "RenameTagDialog":  {
+                        "Title":  "Rename tag",
+                        "Placeholder":  "Tag name",
+                        "Save":  "Save",
+                        "Cancel":  "Cancel"
+                    },
+                    "DeleteTagDialog":  {
+                        "Title":  "Delete tag?",
+                        "Message":  "Delete tag {0}? Linked rows: {1}.",
+                        "Delete":  "Delete",
+                        "Cancel":  "Cancel"
+                    },
+                    "ColorPickerDialog":  {
+                        "Title":  "Custom color",
+                        "Placeholder":  "#RRGGBB",
+                        "Save":  "Save",
+                        "Cancel":  "Cancel"
+                    }
                 },
     "Card":  {
                  "Tabs":  {

@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Linq;
 using MiniCodex.Core.Models;
+using MiniCodex.Core.Logging;
 
 namespace MiniCodex.App.ViewModels;
 
@@ -106,7 +108,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
             AppServices.Scanner,
             AppServices.PreviewGenerator,
             AppServices.TagService,
-            AppServices.IntegrationService);
+            AppServices.IntegrationService,
+            AppServices.CollectionService);
         Library.OpenCardRequested += OnOpenCard;
         Library.OpenCardWithTabRequested += OnOpenCardWithTab;
         CurrentPage = Library;
@@ -124,7 +127,12 @@ public class MainWindowViewModel : INotifyPropertyChanged
         {
             if (CurrentPage is LibraryViewModel lib) lib.RequestFocusSearch();
         });
-        ShowLibraryCommand = new RelayCommand(() => CurrentPage = Library);
+                ShowLibraryCommand = new RelayCommand(() =>
+        {
+            Log.Info("[MainVM-v18] ShowLibraryCommand fired");
+            _ = Library.ForceShowAllAsync();
+            CurrentPage = Library;
+        });
         ShowSettingsCommand = new RelayCommand(() =>
         {
             var vm = new SettingsViewModel();
@@ -144,7 +152,12 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         if (AppServices.Models == null || AppServices.ModelFiles == null) return;
         var page = new ModelCardPageViewModel(model, AppServices.Models, AppServices.ModelFiles,
-            onBack: () => CurrentPage = Library)
+            onBack: () =>
+            {
+                Log.Info("[MainVM-v18] onBack fired");
+                _ = Library.ForceShowAllAsync();
+                CurrentPage = Library;
+            })
         {
             SelectedTabIndex = tabIndex
         };

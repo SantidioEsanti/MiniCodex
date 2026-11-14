@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MiniCodex.Core.Logging;
@@ -119,6 +120,7 @@ public class ScannerService : IScannerService
                     {
                         existing.FileSizeBytes = info.FileSizeBytes;
                         existing.LastWriteTimeUtc = fi.LastWriteTimeUtc;
+                        existing.FileHash = ComputeSha256(filePath);
                         existing.PolygonCount = info.PolygonCount;
                         await _fileRepo.UpsertAsync(existing, ct);
                         var model = await _modelRepo.GetAsync(existing.ModelId, ct);
@@ -147,6 +149,7 @@ public class ScannerService : IScannerService
                             FileSizeBytes = info.FileSizeBytes,
                             PolygonCount = info.PolygonCount,
                             LastWriteTimeUtc = fi.LastWriteTimeUtc,
+                            FileHash = ComputeSha256(filePath),
                         };
                         await _fileRepo.UpsertAsync(newFile, ct);
                         model.PrimaryModelFileId = newFile.Id;
@@ -178,5 +181,20 @@ public class ScannerService : IScannerService
         }
 
         Log.Info("[Scanner] SCAN DONE added=" + state.Added + " updated=" + state.Updated + " skipped=" + state.Skipped + " errors=" + state.Errors + " mem=" + Log.MemoryMb() + "MB");
+    }
+
+    private static string ComputeSha256(string filePath)
+    {
+        try
+        {
+            using var sha256 = SHA256.Create();
+            using var stream = File.OpenRead(filePath);
+            var hash = sha256.ComputeHash(stream);
+            return Convert.ToHexString(hash);
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 }

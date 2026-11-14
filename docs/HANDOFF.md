@@ -1,8 +1,8 @@
 # HANDOFF - MiniCodex
 
-**Document version:** 2.1 (after ~65 patches)
+**Document version:** 2.2 (after ~66 patches, post-release)
 **Last updated:** 2026-11-13
-**Current version:** 0.4.5a13.1 (pre-release, ready for v0.1.0-alpha release)
+**Current version:** v0.1.0-alpha (PUBLISHED 2026-11-13)
 **Purpose:** Context transfer for a new AI dialogue to continue development.
 
 ---
@@ -319,6 +319,8 @@ $p='D:\...\patch_X.ps1'; if (Test-Path $p) { $c=[IO.File]::ReadAllText($p,[Text.
 
 10. **Event signatures in code-behind** - DragEventArgs for DragDrop.Drop and DragDrop.DragOver. Not RoutedEventArgs.
 
+11. **String.Split(string) does not exist in PS 5.1** - it silently binds to Split(char[]), so "abc".Split("b") iterates chars and returns 3 pieces, not 2. For occurrence counting use: [regex]::Matches($text, [regex]::Escape($anchor)).Count. Symptom: "Anchor ambiguous (14782 occurrences)" for a 45-char string. Cost: one lost patch run in 0.5.2b. If you write a custom Replace-Exact helper (recommended), always validate anchor count == 1 before replacing.
+
 ### 10.5 Rollback
 
 Manual only: copy files from backups/{version}_{timestamp}/ back into D:\AI\MiniCodex\.
@@ -542,4 +544,152 @@ Release steps:
 - Multi-select in library not implemented (delete only via context menu).
 - No Copy/Paste/Undo in notes/fields.
 
+---
+
+## 16. Post-release state (2026-11-13)
+
+MVP v0.1.0-alpha is PUBLISHED on GitHub.
+
+- Release page: https://github.com/SantidioEsanti/MiniCodex/releases/tag/v0.1.0-alpha
+- Repository: https://github.com/SantidioEsanti/MiniCodex (public, MIT license)
+- Tag: v0.1.0-alpha (pre-release)
+- Artifact: MiniCodex-v0.1.0-alpha-win-x64.zip (~42 MB zip, ~95 MB extracted)
+- SHA-256: see Release description on GitHub
+- CI: GitHub Actions build.yml succeeded on first push (green check on initial commit)
+- Topics: 20 (3d-printing, 3d-models, miniatures, stl, 3mf, obj, 3d-model-manager,
+  stl-library, 3d-viewer, scale-converter, slicer-integration, dotnet, avalonia,
+  csharp, sqlite, windows, portable, desktop-app, catalog, hobby)
+  - NOTE: 'object-detection' was added accidentally. Remove via repo Settings if desired.
+
+### 16.1 Metrics at release
+
+- 0 downloads, 0 stars, 0 forks, 0 watchers (as of 2026-11-13)
+- No issues yet
+
+### 16.2 First 48h checklist (post-release)
+
+1. Verify README screenshots render correctly in browser (5 images in docs/screenshots/,
+   named 01-library-light.png ... 05-settings-integrations.png).
+   If broken -> rename SCR_*.png and push again.
+2. Announce on Reddit (r/3Dprinting, r/PrintedMinis, r/minipainting),
+   Boosty, relevant Telegram channels.
+3. Monitor GitHub Issues, respond within 24h.
+4. Track download counter on Release page (metric: <10 = repitch,
+   10-50 = normal solo-MVP start, 50-200 = good reception, 200+ = prioritize v0.1.1).
+
+### 16.3 v0.1.1 backlog (priority by expected user impact)
+
+1. Spatial deduplication for 3D-scanned STL (smooth normals; layer-line artifacts
+   remain on scanned meshes because normals are per-face or degenerate).
+2. Grid virtualization (ItemsRepeater + UniformGridLayout) for 1000+ models.
+   WrapPanel in ScrollViewer is not virtualized.
+3. Single-instance lock (SQLite race when multiple launches).
+4. Tag hierarchy in UI (Tag.parent_id already in DB, currently flat).
+5. Custom icons for status (replace Unicode glyphs with SVG for consistent rendering).
+6. If z-fighting resurfaces: per-face depth sorting or MSAA (currently zbias on
+   regular triangles; sub-pixel path uses max-z without bias).
+
+### 16.4 What is NOT in v0.1.0-alpha (see В§15 for full list)
+
+- No archives (ZIP/RAR/7Z) - planned v1.1
+- No duplicate geometry detection
+- No printer bed fit check
+- No multi-select in library grid
+- render/document/profile asset types stored in DB but hidden from UI
+- No tag color picker UI (Tag.color field unused)
+
+### 16.5 Development workflow reminder for next session
+
+- All changes through patch scripts (section 10).
+- .ps1 = ASCII-only. If Cyrillic needed: BOM-fix prepend + here-strings closing
+  marker at column 0 (no leading spaces), or use [char] codes, or base64.
+- One patch = one logical step. Do NOT bundle plumbing + full UI rewrite.
+- 48 tests must stay green after every patch. Build: 0 errors, 0 warnings.
+- When changing an interface signature (e.g. IPreviewRenderer.Render, IPreviewGenerator),
+  grep for Stub*/Fake*/Test*/Mock* implementations in MiniCodex.Tests - update them too
+  (hard-won lesson from 0.3.0a, 0.4.5a1, 0.4.5a5.1).
+- Next session: start by reading HANDOFF.md fully, then plan before patching.
+
 End of HANDOFF.
+---
+
+## 17. Development state (2026-11-13 - post UI/3D updates)
+
+### 17.1 UI Soft Glass (v0.5.0a1..a18)
+- Implemented Glassmorphism UI (soft shadows, rounded corners, glass panels).
+- Added gradient backgrounds for Light (warm white to soft lavender) and Dark (warm gray to graphite) themes.
+- Moved design tokens (colors, shadows) into ThemeDictionaries for proper Light/Dark support.
+- Known issue: Card grid margins are currently large (added for shadows). Needs optimization in future UI patches.
+
+### 17.2 Spatial Deduplication (v0.5.1a1)
+- Added MeshNormalSmoother in MiniCodex.Render.Rendering.
+- Triggered for meshes with >500,000 triangles to weld vertices by spatial position (precision 1e-3) and average normals.
+- Fixes "layer lines" on 3D-scanned STL models.
+- Added unit tests (50 total now).
+
+### 17.3 Next steps (v0.1.1 backlog)
+1. Single-instance lock (Mutex) to prevent SQLite race conditions.
+2. Grid virtualization (ItemsRepeater + UniformGridLayout) for 1000+ models.
+3. Tag hierarchy in UI.
+
+<!-- patch 0.5.1a2 applied -->
+---
+
+## 18. Post-release state v0.1.1 (2026-11-13)
+
+### 18.1 UI Soft Glass (v0.5.0a1..a18, a28)
+- Implemented Glassmorphism UI (soft shadows, rounded corners, glass panels).
+- Added gradient backgrounds for Light (warm white to soft lavender) and Dark (warm gray to graphite) themes.
+- Moved design tokens (colors, shadows) into ThemeDictionaries for proper Light/Dark support.
+- Replaced Unicode status icons (Segoe Fluent Icons) with native StreamGeometry + PathIcon (Clock, 3D Printer, Brush).
+- Reduced card margins (6,6,6,20) and shadow blur to increase grid density.
+
+### 18.2 Critical Architecture Changes (v0.5.1a20..a27)
+- **Virtualization Reverted:** We tried ItemsRepeater with UniformGridLayout (Avalonia 11.1.5), but it caused severe UI update bugs (cards disappearing, stuck filters). We reverted to stable ItemsControl + WrapPanel and a get-only ObservableCollection.
+- **Singleton ViewModel:** LibraryViewModel is no longer disposed on navigation (DisposeAsync is a no-op). It must survive navigation to/from model cards.
+- **Direct UI Updates:** Removed complex Dispatcher.InvokeAsync for collection replacement. Now Cards.Clear() + Cards.Add() is done directly, and ReloadModelsCoreAsync uses a SemaphoreSlim to prevent overlapping loads.
+
+### 18.3 New Features (v0.5.1a33..a38)
+- **Spatial Deduplication:** MeshNormalSmoother in MiniCodex.Render smooths normals for meshes with >500K triangles.
+- **Duplicate Detection:** 
+  - Migration_0004 adds ile_hash (SHA-256) to ModelFile.
+  - ScannerService computes SHA-256 on scan for new/updated files.
+  - ModelRepository.GetDuplicateModelIdsAsync() finds duplicates.
+  - "Find duplicates" button added to Library toolbar.
+- **Single-instance lock:** Named Mutex in Program.cs prevents multiple instances (protects SQLite).
+
+### 18.4 Known Issues
+- **First scan after v0.5.1a35:** If you didn't scan after the hash migration, the "Find duplicates" button will return an empty list until you scan folders again (to populate hashes).
+- **Card margins:** We reduced them to 6,6,6,20, but some users may still find the grid sparse. Future optimization: use dynamic Margin based on viewport width.
+
+### 18.5 Next steps (v1.1 backlog)
+1. **Bed Fit Check:** Add model dimensions to DB, compare with printer bed size.
+2. **Archives:** Support ZIP/RAR/7Z scanning.
+3. **Tag color picker:** UI for Tag.color field.
+4. **Multi-select:** In library grid.
+
+<!-- patch 0.5.1a39 applied -->
+
+---
+
+## 19. Session 2026-11-13 evening - Smart Collections (v0.5.2a..d)
+
+### 19.1 What was added
+- **0.5.2a** backend: SmartCollectionFilter DTO (Core.Models), ICollectionService + CollectionService (Core.Services), ITagService.SetColorAsync, AppServices.CollectionService wiring, CollectionServiceTests (5 tests). Tests 50 -> 55.
+- **0.5.2b** ViewModels: CollectionRow.cs; TagNodeViewModel gains Color/ColorBrush/HasColor/static Palette (8 hex)/SetColorCommand/ClearColorCommand/OnColorChange; LibraryViewModel gains Collections/SelectedCollection/commands/LoadCollectionsAsync/SaveCurrentFilterAsync/DeleteCollectionAsync/ChangeTagColorAsync/ApplyCollectionAsync/FindTagById and 7th optional ICollectionService ctor param; MainWindowViewModel passes AppServices.CollectionService.
+- **0.5.2c** UI: LibraryView.axaml Collections section (header + delete button + ListBox) under the tag tree; per-tag color dot + 8-swatch context menu + Clear in TreeDataTemplate; Save filter button in toolbar. TagNodeViewModel.ClearColorLabel. lang/en.json + lang/ru.json +5 keys each.
+- **0.5.2d** Save Filter dialog: LibraryViewModel.ShowSaveFilterDialog/NewCollectionName/ConfirmSaveFilterCommand/CancelSaveFilterCommand/OpenSaveFilterDialog/ConfirmSaveFilterAsync/CancelSaveFilter; LibraryView.axaml overlay dialog; lang +4 keys per file (SaveFilterDialog.Title/Placeholder/Save/Cancel); HANDOFF lesson 11 (String.Split) + this section.
+
+### 19.2 SmartCollectionFilter format
+JSON: {"Search":"...","TagId":"...","TagName":"..."}. Stored in Collection.filter_query; Collection.is_smart = 1. CollectionService.DeserializeFilter is null-safe and returns SmartCollectionFilter.Empty on bad JSON. SaveSmartAsync matches existing by name OrdinalIgnoreCase -> upsert (no duplicates by name).
+
+### 19.3 Known limitations of the 0.5.2 series
+- Tag color picker is a fixed 8-color palette (TagNodeViewModel.Palette). No custom hex input yet.
+- Smart Collection stores single TagId, not subtree. Filtering by a parent tag already includes descendants (LibraryViewModel.FilterTagIds uses GetDescendantIds), so if the collection references a parent tag, subtree filtering works.
+- Saving a filter while a collection is selected reads current UI state (_searchQuery/_selectedTag), not SelectedCollection.Filter. Re-saving with the same name overwrites (upsert).
+- Right-click on an unselected tag also selects it (Avalonia default TreeView behavior) -> filter applies before the context menu opens. Works fine but unexpected; if it becomes a nuisance, handle ContextRequested with e.Handled = true (deferred to 0.5.3).
+
+### 19.4 Next steps
+1. v0.1.2 release if 55 tests green.
+2. Deferred to 0.5.3: tag rename/delete UI, custom hex color picker, per-tag subtree saved as collection.
+3. Deferred to v1.1: bulk tag editing, multi-select grid, printer bed fit check.

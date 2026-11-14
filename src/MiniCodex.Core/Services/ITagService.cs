@@ -9,4 +9,7 @@ public interface ITagService
     Task AddToModelAsync(string modelId, string tagName, CancellationToken ct = default);
     Task RemoveFromModelAsync(string modelId, string tagId, CancellationToken ct = default);
     Task<IReadOnlyList<TagWithUsage>> GetAllWithUsageAsync(CancellationToken ct = default);
+    Task SetColorAsync(string tagId, string? color, CancellationToken ct = default);
+    Task RenameAsync(string tagId, string newName, CancellationToken ct = default);
+    Task DeleteAsync(string tagId, CancellationToken ct = default);
 }

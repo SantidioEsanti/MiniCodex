@@ -64,4 +64,13 @@ public class ModelTagRepository : IModelTagRepository
         cmd.Parameters.AddWithValue("$t", tagId);
         return await cmd.ExecuteScalarAsync(ct) != null;
     }
+
+    public async Task RemoveAllForTagAsync(string tagId, CancellationToken ct = default)
+    {
+        await using var conn = await _factory.OpenAsync(ct);
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = "DELETE FROM ModelTag WHERE tag_id = $t;";
+        cmd.Parameters.AddWithValue("$t", tagId);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
 }

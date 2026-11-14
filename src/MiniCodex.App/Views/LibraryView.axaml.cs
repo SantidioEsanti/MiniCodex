@@ -85,4 +85,15 @@ public partial class LibraryView : UserControl
         }
         catch (Exception ex) { Log.Exception("[LibraryView] OnScanClick failed", ex); }
     }
+
+    private void OnTagSelectionChanged(object? sender, Avalonia.Controls.SelectionChangedEventArgs e)
+    {
+        if (sender is Avalonia.Controls.TreeView tv && tv.SelectedItem is MiniCodex.App.ViewModels.TagNodeViewModel node)
+        {
+            if (DataContext is MiniCodex.App.ViewModels.LibraryViewModel vm && vm.SelectedTag != node)
+            {
+                vm.SelectedTag = node;
+            }
+        }
+    }
 }

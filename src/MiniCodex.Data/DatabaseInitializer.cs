@@ -9,6 +9,7 @@ public static class DatabaseInitializer
         new Migration_0001_InitialSchema(),
         new Migration_0002_ModelFile_LastWriteTime(),
         new Migration_0003_ModelOrientation(),
+        new Migration_0004_ModelFile_Hash(),
     };
 
     public static int LatestSchemaVersion => Migrations.Max(m => m.Version);

@@ -7,6 +7,7 @@ using Assimp;
 using MiniCodex.Core.Logging;
 using MiniCodex.Core.Models;
 using MiniCodex.Core.Services;
+using MiniCodex.Render.Rendering;
 
 namespace MiniCodex.Render.Loaders;
 
@@ -160,6 +161,8 @@ public class AssimpMeshLoader : IMeshLoader, IMeshGeometryLoader
                 VertexNormals = allNormals.ToArray(),
                 Indices = allIndices.ToArray(),
             };
+
+            MeshNormalSmoother.Smooth(result);
             Log.Info("[Assimp] LoadGeometry ok path=" + SafeName(filePath) +
                      " tris=" + result.TriangleCount +
                      " verts=" + result.Vertices.Length +

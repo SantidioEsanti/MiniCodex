@@ -4,8 +4,18 @@
              xmlns:views="clr-namespace:MiniCodex.App.Views"
              x:Class="MiniCodex.App.App"
              RequestedThemeVariant="Default">
+    <!-- patch 0.5.0a15 applied -->
+    <!-- patch 0.5.0a12 applied -->
+    <!-- patch 0.5.0a8 applied -->
+    <!-- patch 0.5.0a7 applied -->
+    <!-- patch 0.5.0a6 applied -->
 
     <Application.DataTemplates>
+    <!-- patch 0.5.0a15 applied -->
+    <!-- patch 0.5.0a12 applied -->
+    <!-- patch 0.5.0a8 applied -->
+    <!-- patch 0.5.0a7 applied -->
+    <!-- patch 0.5.0a6 applied -->
         <DataTemplate DataType="vm:LibraryViewModel">
             <views:LibraryView/>
         </DataTemplate>
@@ -21,9 +31,27 @@
     </Application.DataTemplates>
 
     <Application.Resources>
+    <!-- patch 0.5.0a15 applied -->
+    <!-- patch 0.5.0a12 applied -->
+    <!-- patch 0.5.0a8 applied -->
+    <!-- patch 0.5.0a7 applied -->
+    <!-- patch 0.5.0a6 applied -->
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
+            <BoxShadows x:Key="CardShadow">0 8 20 0 #2E000000</BoxShadows>
+            <BoxShadows x:Key="GlassPanelShadow">0 8 24 0 #1A000000</BoxShadows>
+            <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="100%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#FFFDF8" Offset="0.0" />
+                <GradientStop Color="#C8BFF0" Offset="1.0" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#000000" />
+            <SolidColorBrush x:Key="ButtonHoverBrush" Color="#E2E8F0" />
+            <SolidColorBrush x:Key="ButtonPressedBrush" Color="#CBD5E1" />
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="GlassPanelBackgroundBrush" Color="#E6FFFFFF" />
+            <SolidColorBrush x:Key="GlassPanelBorderBrush" Color="#80FFFFFF" />
+            <SolidColorBrush x:Key="SoftBorderBrush" Color="#E2E8F0" />
                     <Color x:Key="SystemAccentColor">#E67E22</Color>
                     <Color x:Key="SystemAccentColorLight1">#EB9548</Color>
                     <Color x:Key="SystemAccentColorLight2">#F0AB6F</Color>
@@ -32,10 +60,22 @@
                     <Color x:Key="SystemAccentColorDark2">#B25F18</Color>
                     <Color x:Key="SystemAccentColorDark3">#995013</Color>
                     <SolidColorBrush x:Key="SystemAccentColorBrush" Color="#E67E22"/>
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="White"/>
                     <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F2F2F2"/>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
+            <BoxShadows x:Key="CardShadow">0 8 24 0 #CC000000</BoxShadows>
+            <BoxShadows x:Key="GlassPanelShadow">0 8 24 0 #1A000000</BoxShadows>
+            <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="100%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#4A454E" Offset="0.0" />
+                <GradientStop Color="#0F0D12" Offset="1.0" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ButtonHoverBrush" Color="#3A3A3A" />
+            <SolidColorBrush x:Key="ButtonPressedBrush" Color="#4A4A4A" />
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#383838" />
+            <SolidColorBrush x:Key="GlassPanelBackgroundBrush" Color="#CC252525" />
+            <SolidColorBrush x:Key="GlassPanelBorderBrush" Color="#33FFFFFF" />
+            <SolidColorBrush x:Key="SoftBorderBrush" Color="#3A3A3A" />
                     <Color x:Key="SystemAccentColor">#E67E22</Color>
                     <Color x:Key="SystemAccentColorLight1">#EB9548</Color>
                     <Color x:Key="SystemAccentColorLight2">#F0AB6F</Color>
@@ -44,14 +84,27 @@
                     <Color x:Key="SystemAccentColorDark2">#B25F18</Color>
                     <Color x:Key="SystemAccentColorDark3">#995013</Color>
                     <SolidColorBrush x:Key="SystemAccentColorBrush" Color="#E67E22"/>
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#252525"/>
                     <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1A1A1A"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+        <!-- patch 0.5.1a32 applied -->
+        <StreamGeometry x:Key="IconClock">M11.99,2C6.47,2,2,6.48,2,12s4.47,10,9.99,10C17.52,22,22,17.52,22,12S17.52,2,11.99,2z M12,20c-4.42,0-8-3.58-8-8s3.58-8,8-8s8,3.58,8,8S16.42,20,12,20z M12.5,7H11v6l5.25,3.15l0.75-1.23l-4.5-2.67V7z</StreamGeometry>
+        <StreamGeometry x:Key="Icon3DPrinter">M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M19,19H5V5h14V19z M8,7h8v6H8V7z M10,17h4v2h-4V17z M11,13h2v4h-2V13z</StreamGeometry>
+        <StreamGeometry x:Key="IconBrush">M7,14c-1.66,0-3,1.34-3,3c0,1.31-1.16,2-2,2c0.92,1.22,2.49,2,4,2c2.21,0,4-1.79,4-4C10,15.34,8.66,14,7,14z M20.71,4.63l-1.34-1.34c-0.39-0.39-1.02-0.39-1.41,0L9,12.25L11.75,15l8.96-8.96C21.1,5.65,21.1,5.02,20.71,4.63z</StreamGeometry>
+        <CornerRadius x:Key="CornerRadiusLarge">16</CornerRadius>
+        <CornerRadius x:Key="CornerRadiusMedium">12</CornerRadius>
+        <!-- patch 0.5.0a1 applied -->
+        
+        
         </ResourceDictionary>
     </Application.Resources>
 
     <Application.Styles>
+    <!-- patch 0.5.0a15 applied -->
+    <!-- patch 0.5.0a12 applied -->
+    <!-- patch 0.5.0a8 applied -->
+    <!-- patch 0.5.0a7 applied -->
+    <!-- patch 0.5.0a6 applied -->
         <FluentTheme />
 
         <Style Selector="Window">
@@ -59,9 +112,7 @@
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
         </Style>
 
-        <Style Selector="Button">
-            <Setter Property="CornerRadius" Value="6"/>
-        </Style>
+        
         <Style Selector="TextBox">
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="SelectionBrush" Value="#E67E22"/>
@@ -116,6 +167,62 @@
         </Style>
         <Style Selector="Border.card:pointerover">
             <Setter Property="BoxShadow" Value="0 4 16 0 #30000000"/>
+        </Style>
+            
+        <!-- patch 0.5.0a4 applied -->
+        
+        
+        
+        
+        
+        
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusMedium}"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SoftBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusMedium}"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SoftBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+
+        <Style Selector="ListBoxItem">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+            <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusMedium}"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SoftBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}"/>
+        </Style>
+        
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundBrush}"/>
+        </Style>
+        
+        <Style Selector="Button:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundBrush}"/>
+        </Style>
+
+        <Style Selector="Button:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundBrush}"/>
+        </Style>
+
+        <Style Selector="ToggleButton:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundBrush}"/>
         </Style>
     </Application.Styles>
 </Application>

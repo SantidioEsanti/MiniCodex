@@ -172,7 +172,7 @@ public class ModelCardViewModel : INotifyPropertyChanged
                         using var stream = File.OpenRead(path);
                         _previews[i] = new Bitmap(stream);
                     }
-                    catch { }
+                    catch (Exception ex) { MiniCodex.Core.Logging.Log.Exception("[ModelCard] Failed to load preview: " + path, ex); }
                 });
             }
             await Dispatcher.UIThread.InvokeAsync(() =>
