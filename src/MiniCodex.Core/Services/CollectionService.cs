@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MiniCodex.Core.Models;
 using MiniCodex.Core.Repositories;
 
@@ -44,6 +44,15 @@ public class CollectionService : ICollectionService
     }
 
     public Task DeleteAsync(string id, CancellationToken ct = default) => _repo.DeleteAsync(id, ct);
+
+    public async Task SetColorAsync(string id, string? color, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return;
+        var c = await _repo.GetAsync(id, ct);
+        if (c == null) return;
+        c.Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
+        await _repo.UpsertAsync(c, ct);
+    }
 
     public static string SerializeFilter(SmartCollectionFilter filter)
         => JsonSerializer.Serialize(filter ?? SmartCollectionFilter.Empty, JsonOpts);

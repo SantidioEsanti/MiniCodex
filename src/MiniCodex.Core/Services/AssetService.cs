@@ -1,5 +1,6 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using MiniCodex.Core.Models;
+using MiniCodex.Core.Logging;
 using MiniCodex.Core.Repositories;
 
 namespace MiniCodex.Core.Services;
@@ -42,6 +43,21 @@ public class AssetService : IAssetService
         var baseName = Path.GetFileNameWithoutExtension(sourcePath);
         var hex = Convert.ToHexString(RandomNumberGenerator.GetBytes(4)).ToLowerInvariant();
         var destPath = Path.Combine(modelDir, $"{hex}_{baseName}{ext}");
+
+        // Dedup: if an asset with the same original basename already exists for this model,
+        // return it instead of importing a duplicate. No schema change required.
+        var existing = await _assets.GetByModelAsync(modelId, ct);
+        var origBase = Path.GetFileNameWithoutExtension(sourcePath);
+        foreach (var a in existing)
+        {
+            var aName = Path.GetFileNameWithoutExtension(a.AbsolutePath);
+            if (string.Equals(aName, origBase, StringComparison.OrdinalIgnoreCase)
+                || aName.EndsWith("_" + origBase, StringComparison.OrdinalIgnoreCase))
+            {
+                Log.Info("[AssetService] dedup hit: " + sourcePath + " -> existing " + a.Id);
+                return a;
+            }
+        }
 
         File.Copy(sourcePath, destPath, overwrite: false);
 

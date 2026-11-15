@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Avalonia.Media.Imaging;
@@ -30,6 +30,14 @@ public class ModelCardViewModel : INotifyPropertyChanged
     {
         get => _isHovered;
         set { if (_isHovered != value) { _isHovered = value; Raise(); } }
+    }
+
+    // --- multi-select (0.5.6b.1) ---
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set { if (_isSelected != value) { _isSelected = value; Raise(); } }
     }
 
     public Bitmap? PreviewImage => _previews.Length > _previewIndex ? _previews[_previewIndex] : null;
@@ -67,6 +75,7 @@ public class ModelCardViewModel : INotifyPropertyChanged
     private readonly Action<Model> _onOpen;
     private readonly Action<Model> _onAddTag;
     private readonly Action<Model> _onRemoveFromLibrary;
+    private readonly Action<ModelCardViewModel, bool, bool>? _onClick;
     private readonly IIntegrationService? _integration;
 
     public ModelCardViewModel(
@@ -76,13 +85,15 @@ public class ModelCardViewModel : INotifyPropertyChanged
         Action<Model> onRemoveFromLibrary,
         IIntegrationService? integration,
         bool hasSlicer,
-        bool hasEditor)
+        bool hasEditor,
+        Action<ModelCardViewModel, bool, bool>? onClick = null)
     {
         Model = model;
         _onOpen = onOpen;
         _onAddTag = onAddTag;
         _onRemoveFromLibrary = onRemoveFromLibrary;
         _integration = integration;
+        _onClick = onClick;
         _hasSlicer = hasSlicer;
         _hasEditor = hasEditor;
 
@@ -94,6 +105,9 @@ public class ModelCardViewModel : INotifyPropertyChanged
         ToSlicerCommand = new RelayCommand(async () => await LaunchAsync(IntegrationAppKind.Slicer));
         ToEditorCommand = new RelayCommand(async () => await LaunchAsync(IntegrationAppKind.Editor));
     }
+
+    // 0.5.6b.2: click plumbing (LibraryView passes ctrl/shift + this card)
+    public void HandleClick(bool isCtrl, bool isShift) => _onClick?.Invoke(this, isCtrl, isShift);
 
     public void RotateTo(int index)
     {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -43,6 +43,15 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
     private string _newTagColor = "#E67E22";
     private TagNodeViewModel? _colorPickerTagTarget;
 
+    // --- multi-select (0.5.6b.1) ---
+    private int _lastClickedIndex = -1;
+    private bool _showGroupTagDialog;
+    private string _groupTagName = string.Empty;
+    private bool _showGroupRemoveConfirm;
+    private string _groupRemoveMessage = string.Empty;
+
+    private readonly Dictionary<string, int> _tagDirectUsage = new(StringComparer.OrdinalIgnoreCase);
+
     private readonly SemaphoreSlim _previewSemaphore = new SemaphoreSlim(1, 1);
     private readonly SemaphoreSlim _loadSemaphore = new SemaphoreSlim(1, 1);
     private CancellationTokenSource _lifetimeCts = new CancellationTokenSource();
@@ -51,6 +60,8 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
         public ObservableCollection<ModelCardViewModel> Cards { get; } = new();
     public ObservableCollection<TagNodeViewModel> Tags { get; } = new();
     public ObservableCollection<CollectionRow> Collections { get; } = new();
+    public ObservableCollection<ModelCardViewModel> SelectedCards { get; } = new();
+    public ObservableCollection<string> GroupTagCandidates { get; } = new();
 
     private bool _hasSlicer;
     private bool _hasEditor;
@@ -291,6 +302,16 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
     public ICommand CancelDeleteTagCommand { get; }
     public ICommand ConfirmColorPickerCommand { get; }
     public ICommand CancelColorPickerCommand { get; }
+    public ICommand ClearSelectionCommand { get; }
+    public ICommand SelectAllVisibleCommand { get; }
+    public ICommand GroupAddTagCommand { get; }
+    public ICommand GroupRemoveCommand { get; }
+    public ICommand GroupCopyPathsCommand { get; }
+    public ICommand GroupFindDuplicatesCommand { get; }
+    public ICommand ConfirmGroupTagCommand { get; }
+    public ICommand CancelGroupTagCommand { get; }
+    public ICommand ConfirmGroupRemoveCommand { get; }
+    public ICommand CancelGroupRemoveCommand { get; }
 
     public LibraryViewModel(
         IModelRepository? models,
@@ -322,11 +343,33 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
             () => { if (SelectedCollection != null) _ = DeleteCollectionAsync(SelectedCollection); },
             () => SelectedCollection != null);
 
+        // --- multi-select (0.5.6b.1) ---
+        ClearSelectionCommand = new RelayCommand(ClearSelection);
+        SelectAllVisibleCommand = new RelayCommand(SelectAllVisible);
+        GroupAddTagCommand = new RelayCommand(() => OpenGroupAddTagDialog());
+        GroupRemoveCommand = new RelayCommand(() => OpenGroupRemoveDialog());
+        GroupCopyPathsCommand = new RelayCommand(() => _ = GroupCopyPathsAsync());
+        GroupFindDuplicatesCommand = new RelayCommand(() => _ = GroupFindDuplicatesAsync());
+        ConfirmGroupTagCommand = new RelayCommand(() => _ = GroupAddTagAsync());
+        CancelGroupTagCommand = new RelayCommand(() => { ShowGroupTagDialog = false; GroupTagName = string.Empty; });
+        ConfirmGroupRemoveCommand = new RelayCommand(() => _ = GroupRemoveAsync());
+        CancelGroupRemoveCommand = new RelayCommand(() => { ShowGroupRemoveConfirm = false; });
+
         Log.Info("[LibraryViewModel] ctor Models=" + (models != null) + " Files=" + (files != null) +
                  " Scanner=" + (scanner != null) + " Previews=" + (previews != null));
     }
 
     public void RequestFocusSearch() => FocusSearchRequested?.Invoke(this, EventArgs.Empty);
+
+    public string GroupSelectionStatusText => string.Format(GroupSelectionStatusFormat, SelectedCount);
+    public string GroupClearText => App.Loc?.Get("Library.Group.Clear") ?? "Clear";
+
+    private bool HasAnyModalOpen()
+    {
+        return _showScanWarning || _showSaveFilterDialog || _showRenameTagDialog
+            || _showDeleteTagConfirm || _showColorPickerDialog
+            || _showGroupTagDialog || _showGroupRemoveConfirm;
+    }
 
     public void RefreshLocalized()
     {
@@ -343,7 +386,256 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
         Raise(nameof(DeleteCollectionTooltip));
         foreach (var t in Tags) t.RefreshLocalized();
         foreach (var c in Cards) c.RefreshLocalized();
+        Raise(nameof(GroupTagDialogTitle));
+        Raise(nameof(GroupTagDialogPlaceholder));
+        Raise(nameof(GroupTagDialogAddText));
+        Raise(nameof(GroupTagDialogCancelText));
+        Raise(nameof(GroupRemoveDialogTitle));
+        Raise(nameof(GroupRemoveDialogRemoveText));
+        Raise(nameof(GroupRemoveDialogCancelText));
+        Raise(nameof(GroupAddTagMenuText));
+        Raise(nameof(GroupRemoveMenuText));
+        Raise(nameof(GroupCopyPathsMenuText));
+        Raise(nameof(GroupFindDuplicatesMenuText));
+        Raise(nameof(GroupSelectionStatusFormat));
+        Raise(nameof(GroupSelectionStatusText));
+        Raise(nameof(GroupClearText));
         UpdatePreviewsStatus();
+    }
+
+    // ============================================================
+    // Multi-select (0.5.6b.1)
+    // ============================================================
+    public int SelectedCount => SelectedCards.Count;
+    public bool HasSelection => SelectedCards.Count > 0;
+    public bool IsMultiSelection => SelectedCards.Count > 1;
+
+    public bool ShowGroupTagDialog
+    {
+        get => _showGroupTagDialog;
+        set { if (_showGroupTagDialog == value) return; _showGroupTagDialog = value; Raise(); }
+    }
+    public string GroupTagName
+    {
+        get => _groupTagName;
+        set { if (_groupTagName == value) return; _groupTagName = value; Raise(); }
+    }
+    public string GroupTagDialogTitle => App.Loc?.Get("Library.GroupTagDialog.Title") ?? "Add tag to selection";
+    public string GroupTagDialogPlaceholder => App.Loc?.Get("Library.GroupTagDialog.Placeholder") ?? "Tag name";
+    public string GroupTagDialogAddText => App.Loc?.Get("Library.GroupTagDialog.Add") ?? "Add";
+    public string GroupTagDialogCancelText => App.Loc?.Get("Library.GroupTagDialog.Cancel") ?? "Cancel";
+
+    public bool ShowGroupRemoveConfirm
+    {
+        get => _showGroupRemoveConfirm;
+        set { if (_showGroupRemoveConfirm == value) return; _showGroupRemoveConfirm = value; Raise(); }
+    }
+    public string GroupRemoveMessage
+    {
+        get => _groupRemoveMessage;
+        private set { if (_groupRemoveMessage == value) return; _groupRemoveMessage = value; Raise(); }
+    }
+    public string GroupRemoveDialogTitle => App.Loc?.Get("Library.GroupRemoveDialog.Title") ?? "Remove models?";
+    public string GroupRemoveDialogRemoveText => App.Loc?.Get("Library.GroupRemoveDialog.Remove") ?? "Remove";
+    public string GroupRemoveDialogCancelText => App.Loc?.Get("Library.GroupRemoveDialog.Cancel") ?? "Cancel";
+
+    public string GroupAddTagMenuText => App.Loc?.Get("Library.Group.AddTag") ?? "Add tag to selected";
+    public string GroupRemoveMenuText => App.Loc?.Get("Library.Group.Remove") ?? "Remove selected";
+    public string GroupCopyPathsMenuText => App.Loc?.Get("Library.Group.CopyPaths") ?? "Copy paths of selected";
+    public string GroupFindDuplicatesMenuText => App.Loc?.Get("Library.Group.FindDuplicates") ?? "Find duplicates in selection";
+    public string GroupSelectionStatusFormat => App.Loc?.Get("Library.Group.SelectionCount") ?? "Selected: {0}";
+
+    public void ClearSelection()
+    {
+        if (HasAnyModalOpen()) return;
+        foreach (var c in Cards) c.IsSelected = false;
+        _lastClickedIndex = -1;
+        RefreshSelectionCollections();
+    }
+
+    public void SelectAllVisible()
+    {
+        if (HasAnyModalOpen()) return;
+        foreach (var c in Cards) c.IsSelected = true;
+        _lastClickedIndex = Cards.Count - 1;
+        RefreshSelectionCollections();
+    }
+
+    // Public entry point for code-behind (0.5.6b.2): handles plain / Ctrl / Shift clicks.
+    public void OnCardClicked(ModelCardViewModel card, bool isCtrl, bool isShift)
+    {
+        if (card == null) return;
+        int idx = Cards.IndexOf(card);
+        if (idx < 0) return;
+
+        if (isShift && _lastClickedIndex >= 0 && _lastClickedIndex < Cards.Count)
+        {
+            var from = Math.Min(_lastClickedIndex, idx);
+            var to = Math.Max(_lastClickedIndex, idx);
+            foreach (var c in Cards) c.IsSelected = false;
+            for (int i = from; i <= to; i++) Cards[i].IsSelected = true;
+        }
+        else if (isCtrl)
+        {
+            card.IsSelected = !card.IsSelected;
+            _lastClickedIndex = idx;
+        }
+        else
+        {
+            foreach (var c in Cards) c.IsSelected = false;
+            card.IsSelected = true;
+            _lastClickedIndex = idx;
+        }
+        RefreshSelectionCollections();
+    }
+
+    private void OnCardClickedInternal(ModelCardViewModel card, bool isCtrl, bool isShift)
+        => OnCardClicked(card, isCtrl, isShift);
+
+    public void RefreshSelectionCollections()
+    {
+        SelectedCards.Clear();
+        foreach (var c in Cards) if (c.IsSelected) SelectedCards.Add(c);
+        Raise(nameof(SelectedCount));
+        Raise(nameof(HasSelection));
+        Raise(nameof(IsMultiSelection));
+        Raise(nameof(GroupSelectionStatusText));
+    }
+
+    private void RefreshGroupTagCandidates()
+    {
+        GroupTagCandidates.Clear();
+        void AddRec(TagNodeViewModel node)
+        {
+            if (!string.IsNullOrEmpty(node.Id)) GroupTagCandidates.Add(node.Name);
+            foreach (var child in node.Children) AddRec(child);
+        }
+        foreach (var t in Tags) AddRec(t);
+    }
+
+    private void OpenGroupAddTagDialog()
+    {
+        if (SelectedCards.Count == 0) return;
+        RefreshGroupTagCandidates();
+        GroupTagName = string.Empty;
+        ShowGroupTagDialog = true;
+    }
+
+    private async Task GroupAddTagAsync()
+    {
+        if (!ShowGroupTagDialog) return;
+        if (_tagService == null || SelectedCards.Count == 0) return;
+        var name = (_groupTagName ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(name)) return;
+        try
+        {
+            int count = 0;
+            foreach (var card in SelectedCards.ToList())
+            {
+                try { await _tagService.AddToModelAsync(card.Model.Id, name); count++; } catch { }
+            }
+            ShowGroupTagDialog = false;
+            GroupTagName = string.Empty;
+            var fmt = App.Loc?.Get("Library.Group.TagAppliedFormat") ?? "Applied tag to {0} models";
+            SetStatus(StatusState.Scanning, 0, string.Format(fmt, count));
+            await LoadTagsAsync(CancellationToken.None);
+        }
+        catch (Exception ex) { Log.Exception("[LibraryViewModel] GroupAddTag failed", ex); }
+    }
+
+    private void OpenGroupRemoveDialog()
+    {
+        if (SelectedCards.Count == 0) return;
+        var fmt = App.Loc?.Get("Library.GroupRemoveDialog.Message") ?? "Remove {0} models from library? This cannot be undone.";
+        GroupRemoveMessage = string.Format(fmt, SelectedCards.Count);
+        ShowGroupRemoveConfirm = true;
+    }
+
+    private async Task GroupRemoveAsync()
+    {
+        if (!ShowGroupRemoveConfirm) return;
+        if (_models == null || SelectedCards.Count == 0) return;
+        var cards = SelectedCards.ToList();
+        try
+        {
+            foreach (var card in cards)
+            {
+                try { await _models.DeleteAsync(card.Model.Id); } catch { }
+            }
+            foreach (var card in cards) Cards.Remove(card);
+            ClearSelection();
+            ShowGroupRemoveConfirm = false;
+            SetStatus(Cards.Count == 0 ? StatusState.None : StatusState.ModelCount, Cards.Count);
+            Raise(nameof(IsEmpty));
+            await LoadTagsAsync(CancellationToken.None);
+        }
+        catch (Exception ex) { Log.Exception("[LibraryViewModel] GroupRemove failed", ex); }
+    }
+
+    private async Task GroupCopyPathsAsync()
+    {
+        if (_files == null || SelectedCards.Count == 0) return;
+        var paths = new List<string>();
+        foreach (var card in SelectedCards)
+        {
+            try
+            {
+                var fs = await _files.GetByModelAsync(card.Model.Id);
+                var primary = fs.FirstOrDefault(f => f.Id == card.Model.PrimaryModelFileId) ?? fs.FirstOrDefault();
+                if (primary?.Path != null) paths.Add(primary.Path);
+            }
+            catch { }
+        }
+        if (paths.Count == 0) return;
+        try
+        {
+            if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+                && desktop.MainWindow?.Clipboard != null)
+            {
+                await desktop.MainWindow.Clipboard.SetTextAsync(string.Join(Environment.NewLine, paths));
+                var fmt = App.Loc?.Get("Library.Group.CopiedFormat") ?? "Copied {0} paths";
+                SetStatus(StatusState.Scanning, 0, string.Format(fmt, paths.Count));
+            }
+        }
+        catch (Exception ex) { Log.Exception("[LibraryViewModel] GroupCopyPaths failed", ex); }
+    }
+
+    private async Task GroupFindDuplicatesAsync()
+    {
+        if (_files == null || SelectedCards.Count == 0) return;
+        var hashToModels = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var card in SelectedCards)
+        {
+            try
+            {
+                var fs = await _files.GetByModelAsync(card.Model.Id);
+                foreach (var f in fs)
+                {
+                    if (string.IsNullOrEmpty(f.FileHash)) continue;
+                    if (!hashToModels.TryGetValue(f.FileHash, out var list))
+                    {
+                        list = new List<string>();
+                        hashToModels[f.FileHash] = list;
+                    }
+                    if (!list.Contains(card.Model.Id)) list.Add(card.Model.Id);
+                }
+            }
+            catch { }
+        }
+        var dupIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var kv in hashToModels)
+            if (kv.Value.Count > 1)
+                foreach (var id in kv.Value) dupIds.Add(id);
+        if (dupIds.Count == 0)
+        {
+            SetStatus(StatusState.Scanning, 0, App.Loc?.Get("Library.Group.NoDuplicates") ?? "No duplicates found in selection");
+            return;
+        }
+        var toRemove = Cards.Where(c => !dupIds.Contains(c.Model.Id)).ToList();
+        foreach (var c in toRemove) Cards.Remove(c);
+        ClearSelection();
+        SetStatus(StatusState.ModelCount, Cards.Count);
+        Raise(nameof(IsEmpty));
     }
 
     public async Task LoadAsync(CancellationToken ct = default)
@@ -423,6 +715,9 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
                 }
             }
 
+            _tagDirectUsage.Clear();
+            foreach (var t in tagUsages) _tagDirectUsage[t.Id] = t.UsageCount;
+
             void SumUsage(TagNodeViewModel node)
             {
                 int sum = node.UsageCount;
@@ -473,6 +768,11 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
             }
 
             Cards.Clear();
+            _lastClickedIndex = -1;
+            SelectedCards.Clear();
+            Raise(nameof(SelectedCount));
+            Raise(nameof(HasSelection));
+            Raise(nameof(IsMultiSelection));
             PreviewsDone = 0;
             PreviewsTotal = models.Count;
             Log.Info("[LibraryViewModel] ReloadModels cards=" + models.Count);
@@ -481,7 +781,7 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
             foreach (var m in models)
             {
                 var card = new ModelCardViewModel(m, OnOpenRequested, OnAddTagForModel, OnRemoveFromLibrary,
-                    _integration, _hasSlicer, _hasEditor);
+                    _integration, _hasSlicer, _hasEditor, OnCardClickedInternal);
                 Cards.Add(card);
 
                 _ = Task.Run(async () =>
@@ -531,7 +831,12 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
         {
             var all = await _collectionService.GetSmartAsync(ct);
             Collections.Clear();
-            foreach (var c in all) Collections.Add(CollectionRow.From(c));
+            foreach (var c in all)
+            {
+                var row = CollectionRow.From(c);
+                row.OnColorChange = (r, col) => _ = ChangeCollectionColorAsync(r, col);
+                Collections.Add(row);
+            }
         }
         catch (Exception ex) { Log.Exception("[LibraryViewModel] LoadCollections failed", ex); }
     }
@@ -602,6 +907,17 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
         catch (Exception ex) { Log.Exception("[LibraryViewModel] DeleteCollectionAsync failed", ex); }
     }
 
+    public async Task ChangeCollectionColorAsync(CollectionRow row, string? color)
+    {
+        if (_collectionService == null || row == null || string.IsNullOrEmpty(row.Id)) return;
+        try
+        {
+            await _collectionService.SetColorAsync(row.Id, color);
+            row.Color = color;
+        }
+        catch (Exception ex) { Log.Exception("[LibraryViewModel] ChangeCollectionColorAsync failed", ex); }
+    }
+
     public async Task ChangeTagColorAsync(TagNodeViewModel tag, string? color)
     {
         if (_tagService == null || tag == null || string.IsNullOrEmpty(tag.Id)) return;
@@ -641,8 +957,11 @@ public class LibraryViewModel : INotifyPropertyChanged, IAsyncDisposable
     {
         if (node == null || string.IsNullOrEmpty(node.Id)) return;
         _deleteTagTarget = node;
-        var fmt = App.Loc?.Get("Library.DeleteTagDialog.Message") ?? "Delete tag {0}? Linked rows: {1}.";
-        DeleteTagMessage = string.Format(fmt, node.Name, node.UsageCount);
+        int direct = _tagDirectUsage.TryGetValue(node.Id, out var d) ? d : node.UsageCount;
+        int total = node.UsageCount;
+        int descendantsOnly = Math.Max(0, total - direct);
+        var fmt = App.Loc?.Get("Library.DeleteTagDialog.Message") ?? "Delete tag {0}? Directly tagged: {1}, in subtree (children): {2}.";
+        DeleteTagMessage = string.Format(fmt, node.Name, direct, descendantsOnly);
         ShowDeleteTagConfirm = true;
     }
 

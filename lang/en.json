@@ -1,4 +1,4 @@
-{
+﻿{
     "App":  {
                 "Name":  "MiniCodex",
                 "Version":  "0.0.0",
@@ -126,7 +126,7 @@
                     },
                     "DeleteTagDialog":  {
                         "Title":  "Delete tag?",
-                        "Message":  "Delete tag {0}? Linked rows: {1}.",
+                        "Message":  "Delete tag {0}? Directly tagged: {1}, in subtree (children): {2}.",
                         "Delete":  "Delete",
                         "Cancel":  "Cancel"
                     },
@@ -135,6 +135,28 @@
                         "Placeholder":  "#RRGGBB",
                         "Save":  "Save",
                         "Cancel":  "Cancel"
+                    },
+                    "GroupTagDialog":  {
+                        "Title":  "Add tag to selection",
+                        "Placeholder":  "Tag name",
+                        "Add":  "Add",
+                        "Cancel":  "Cancel"
+                    },
+                    "GroupRemoveDialog":  {
+                        "Title":  "Remove models?",
+                        "Message":  "Remove {0} models from library? This cannot be undone.",
+                        "Remove":  "Remove",
+                        "Cancel":  "Cancel"
+                    },
+                    "Group":  {
+                        "AddTag":  "Add tag to selected",
+                        "Remove":  "Remove selected",
+                        "CopyPaths":  "Copy paths of selected",
+                        "FindDuplicates":  "Find duplicates in selection",
+                        "SelectionCount":  "Selected: {0}",
+                        "CopiedFormat":  "Copied {0} paths",
+                        "TagAppliedFormat":  "Applied tag to {0} models",
+                        "NoDuplicates":  "No duplicates found in selection"
                     }
                 },
     "Card":  {
@@ -184,6 +206,37 @@
                                    "Document":  "Document",
                                    "Profile":  "Print profile"
                                },
+                 "Asset":  {
+                     "Context":  {
+                         "Open":  "Open (full screen)",
+                         "OpenExternal":  "Open with default viewer",
+                         "OpenInExplorer":  "Open in Explorer",
+                         "CopyPath":  "Copy path",
+                         "Replace":  "Replace...",
+                         "Remove":  "Remove"
+                     },
+                     "FullScreen":  {
+                         "Close":  "Close",
+                         "Counter":  "{0} / {1}"
+                     },
+                     "OtherHeader":  "Other",
+                     "DropOther":  "Drop other files here",
+                     "ConfirmRemove":  {
+                         "Title":  "Remove asset?",
+                         "Message":  "Remove {0}? The file stays on disk; only the association is removed.",
+                         "Remove":  "Remove",
+                         "Cancel":  "Cancel"
+                     },
+                     "Error":  {
+                         "OpenFailed":  "Failed to open file",
+                         "CopyFailed":  "Failed to copy path"
+                     },
+                     "Status":  {
+                         "Replaced":  "Asset replaced",
+                         "Removed":  "Asset removed",
+                         "Copied":  "Path copied"
+                     }
+                 },
                  "Status":  {
                                 "Saved":  "Saved",
                                 "ErrorPrefix":  "Error: ",

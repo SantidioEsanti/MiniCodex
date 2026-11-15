@@ -1,8 +1,11 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 using MiniCodex.Core.Logging;
 using MiniCodex.Core.Models;
@@ -18,9 +21,12 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler<string>? PreviewsRegenerated;
+    public event EventHandler<AssetRowViewModel>? ReplaceRequested;
 
     private void Raise([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private const int FullScreenMaxDecodeWidth = 3840;
 
     private readonly IModelRepository _models;
     private readonly IModelFileRepository _files;
@@ -163,7 +169,7 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         set { _meshFilePath = value; Raise(); Raise(nameof(CanLaunch)); Raise(nameof(CanRegeneratePreviews)); }
     }
 
-    private int _selectedTabIndex = 0; // Default: Associations (0.4.3g - Assoc is first tab)
+    private int _selectedTabIndex = 0;
     public int SelectedTabIndex { get => _selectedTabIndex; set { _selectedTabIndex = value; Raise(); } }
 
     private float _minLambert = 0.45f;
@@ -185,8 +191,6 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         get => _wireframeMode;
         set { if (_wireframeMode != value) { _wireframeMode = value; Raise(); } }
     }
-
-
 
     private float _viewerYaw = 180f;
     public float ViewerYaw
@@ -302,16 +306,90 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
     public ObservableCollection<AssetRowViewModel> AssetRows { get; } = new();
     public ObservableCollection<AssetRowViewModel> ReferenceAssets { get; } = new();
     public ObservableCollection<AssetRowViewModel> PhotoAssets { get; } = new();
+    public ObservableCollection<AssetRowViewModel> OtherAssets { get; } = new();
 
     public bool HasReferenceAssets => ReferenceAssets.Count > 0;
     public bool HasPhotoAssets => PhotoAssets.Count > 0;
+    public bool HasOtherAssets => OtherAssets.Count > 0;
 
     public string ReferenceColumnHeader => Loc("Card.AssetType.Reference", "Reference");
     public string PhotoColumnHeader => Loc("Card.AssetType.Photo", "Photo");
+    public string OtherColumnHeader => Loc("Card.Asset.OtherHeader", "Other");
     public string DropReferenceHintText => Loc("Card.Assoc.DropReference", "Drop reference here");
     public string DropPhotoHintText => Loc("Card.Assoc.DropPhoto", "Drop photo here");
+    public string DropOtherHintText => Loc("Card.Asset.DropOther", "Drop other files here");
+
+    // ---------- Asset context menu labels ----------
+    public string AssetOpenText => Loc("Card.Asset.Context.Open", "Open (full screen)");
+    public string AssetOpenExternalText => Loc("Card.Asset.Context.OpenExternal", "Open with default viewer");
+    public string AssetOpenInExplorerText => Loc("Card.Asset.Context.OpenInExplorer", "Open in Explorer");
+    public string AssetCopyPathText => Loc("Card.Asset.Context.CopyPath", "Copy path");
+    public string AssetReplaceText => Loc("Card.Asset.Context.Replace", "Replace...");
+    public string AssetRemoveText => Loc("Card.Asset.Context.Remove", "Remove");
+
+    // ---------- Full screen state ----------
+    private bool _isFullScreenOpen;
+    public bool IsFullScreenOpen
+    {
+        get => _isFullScreenOpen;
+        private set { _isFullScreenOpen = value; Raise(); Raise(nameof(FullScreenCounterText)); }
+    }
+
+    private Bitmap? _fullScreenBitmap;
+    public Bitmap? FullScreenBitmap
+    {
+        get => _fullScreenBitmap;
+        private set { _fullScreenBitmap = value; Raise(); }
+    }
+
+    private string _fullScreenTitle = string.Empty;
+    public string FullScreenTitle
+    {
+        get => _fullScreenTitle;
+        private set { _fullScreenTitle = value; Raise(); }
+    }
+
+    private int _fullScreenIndex;
+    public int FullScreenIndex
+    {
+        get => _fullScreenIndex;
+        private set { _fullScreenIndex = value; Raise(); Raise(nameof(FullScreenCounterText)); Raise(nameof(CanNavigateFullScreen)); }
+    }
+
+    private int _fullScreenTotal;
+    public int FullScreenTotal
+    {
+        get => _fullScreenTotal;
+        private set { _fullScreenTotal = value; Raise(); Raise(nameof(FullScreenCounterText)); Raise(nameof(CanNavigateFullScreen)); }
+    }
+
+    public bool CanNavigateFullScreen => _fullScreenTotal > 1;
+    public string FullScreenCounterText => string.Format(
+        Loc("Card.Asset.FullScreen.Counter", "{0} / {1}"),
+        _fullScreenTotal > 0 ? _fullScreenIndex + 1 : 0,
+        _fullScreenTotal);
+    public string FullScreenCloseText => Loc("Card.Asset.FullScreen.Close", "Close");
+
+    private List<AssetRowViewModel> _fullScreenList = new List<AssetRowViewModel>();
+
+    // ---------- Remove-confirm state ----------
+    private bool _showRemoveAssetConfirm;
+    public bool ShowRemoveAssetConfirm
+    {
+        get => _showRemoveAssetConfirm;
+        private set { _showRemoveAssetConfirm = value; Raise(); }
+    }
+
+    private AssetRowViewModel? _pendingRemoveAsset;
+    public string RemoveAssetConfirmTitle => Loc("Card.Asset.ConfirmRemove.Title", "Remove asset?");
+    public string RemoveAssetConfirmMessage => _pendingRemoveAsset == null
+        ? string.Empty
+        : string.Format(Loc("Card.Asset.ConfirmRemove.Message", "Remove {0}?"), _pendingRemoveAsset.DisplayName);
+    public string RemoveAssetConfirmButton => Loc("Card.Asset.ConfirmRemove.Remove", "Remove");
+    public string RemoveAssetCancelButton => Loc("Card.Asset.ConfirmRemove.Cancel", "Cancel");
 
     public ObservableCollection<TagRowViewModel> TagRows { get; } = new();
+    public ObservableCollection<string> TagCandidates { get; } = new();
     private string _newTagName = string.Empty;
     public string NewTagName { get => _newTagName; set { _newTagName = value; Raise(); } }
 
@@ -344,6 +422,11 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
     public ICommand ApplyManualScaleCommand { get; }
     public ICommand SetStatusCommand { get; }
     public ICommand SetDifficultyCommand { get; }
+    public ICommand CloseFullScreenCommand { get; }
+    public ICommand NextAssetCommand { get; }
+    public ICommand PrevAssetCommand { get; }
+    public ICommand ConfirmRemoveAssetCommand { get; }
+    public ICommand CancelRemoveAssetCommand { get; }
 
     public ModelCardPageViewModel(
         Model model,
@@ -364,7 +447,6 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         _difficultyValue = model.Difficulty ?? 0;
         _notes = model.Notes ?? string.Empty;
 
-        // Scale init (private fields to avoid side effects)
         _prototypeType = "any";
         RefreshScaleChoices();
         if (!string.IsNullOrEmpty(model.ScaleRatio))
@@ -389,6 +471,11 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         ApplyManualScaleCommand = new RelayCommand(ApplyManualScale);
         SetStatusCommand = new RelayCommand(p => SetStatus(p as string));
         SetDifficultyCommand = new RelayCommand(p => SetDifficulty(p as string));
+        CloseFullScreenCommand = new RelayCommand(CloseFullScreen);
+        NextAssetCommand = new RelayCommand(async () => await NavigateFullScreenAsync(+1));
+        PrevAssetCommand = new RelayCommand(async () => await NavigateFullScreenAsync(-1));
+        ConfirmRemoveAssetCommand = new RelayCommand(async () => await ConfirmRemoveAssetAsync());
+        CancelRemoveAssetCommand = new RelayCommand(CancelRemoveAsset);
     }
 
     private void RefreshScaleChoices()
@@ -524,12 +611,11 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
                 _minLambert = Math.Clamp(f, 0f, 1f);
                 Raise(nameof(MinLambertValue));
             }
-
-
         }
 
         await ReloadAssetsAsync(ct);
         await ReloadTagsAsync(ct);
+        await RefreshTagCandidatesAsync(ct);
         await ReloadIntegrationsAsync(ct);
     }
 
@@ -624,7 +710,14 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         AssetRows.Clear();
         foreach (var a in assets)
         {
-            var row = new AssetRowViewModel(a, OnRemoveAssetAsync);
+            var row = new AssetRowViewModel(
+                a,
+                OnRemoveAssetRequested,
+                OpenFullScreenAsync,
+                OpenExternalAsync,
+                OpenInExplorerAsync,
+                CopyPathAsync,
+                RequestReplaceAsync);
             AssetRows.Add(row);
             _ = LoadThumbnailAsync(row, ct);
         }
@@ -651,15 +744,17 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
     {
         ReferenceAssets.Clear();
         PhotoAssets.Clear();
+        OtherAssets.Clear();
         foreach (var r in AssetRows)
         {
-            var t = r.Asset.AssetType?.ToLowerInvariant();
+            var t = (r.Asset.AssetType ?? string.Empty).ToLowerInvariant();
             if (t == "photo") PhotoAssets.Add(r);
-            else if (t == "reference" || string.IsNullOrEmpty(t)) ReferenceAssets.Add(r);
-            // render/document/profile: not displayed in MVP
+            else if (t == "reference" || t.Length == 0) ReferenceAssets.Add(r);
+            else OtherAssets.Add(r);
         }
         Raise(nameof(HasReferenceAssets));
         Raise(nameof(HasPhotoAssets));
+        Raise(nameof(HasOtherAssets));
     }
 
     private void SetAssetStatus(string text) { AssetStatusText = text; Raise(nameof(AssetStatusText)); }
@@ -690,13 +785,158 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         catch (Exception ex) { SetAssetStatus("Error: " + ex.Message); }
     }
 
-    private async Task OnRemoveAssetAsync(AssetRowViewModel row)
+    // ---------- Asset action handlers ----------
+
+    private Task OnRemoveAssetRequested(AssetRowViewModel row)
+    {
+        _pendingRemoveAsset = row;
+        ShowRemoveAssetConfirm = true;
+        Raise(nameof(RemoveAssetConfirmMessage));
+        return Task.CompletedTask;
+    }
+
+    private async Task ConfirmRemoveAssetAsync()
+    {
+        var row = _pendingRemoveAsset;
+        ShowRemoveAssetConfirm = false;
+        _pendingRemoveAsset = null;
+        if (row == null || AppServices.AssetService == null) return;
+        try
+        {
+            await AppServices.AssetService.RemoveFromCardAsync(row.Asset.Id);
+            AssetRows.Remove(row);
+            RebuildAssetColumns();
+            if (IsFullScreenOpen && _fullScreenList.Contains(row))
+                CloseFullScreen();
+            SetAssetStatus(Loc("Card.Asset.Status.Removed", "Asset removed"));
+        }
+        catch (Exception ex) { SetAssetStatus("Error: " + ex.Message); }
+    }
+
+    private void CancelRemoveAsset()
+    {
+        ShowRemoveAssetConfirm = false;
+        _pendingRemoveAsset = null;
+    }
+
+    private Task OpenExternalAsync(AssetRowViewModel row)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = row.Asset.AbsolutePath,
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            SetAssetStatus(Loc("Card.Asset.Error.OpenFailed", "Failed to open file") + ": " + ex.Message);
+        }
+        return Task.CompletedTask;
+    }
+
+    private Task OpenInExplorerAsync(AssetRowViewModel row)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = "/select,\"" + row.Asset.AbsolutePath + "\"",
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            SetAssetStatus(Loc("Card.Asset.Error.OpenFailed", "Failed to open file") + ": " + ex.Message);
+        }
+        return Task.CompletedTask;
+    }
+
+    private async Task CopyPathAsync(AssetRowViewModel row)
+    {
+        try
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+                && desktop.MainWindow?.Clipboard != null)
+            {
+                await desktop.MainWindow.Clipboard.SetTextAsync(row.Asset.AbsolutePath);
+                SetAssetStatus(Loc("Card.Asset.Status.Copied", "Path copied"));
+            }
+        }
+        catch (Exception ex)
+        {
+            SetAssetStatus(Loc("Card.Asset.Error.CopyFailed", "Failed to copy path") + ": " + ex.Message);
+        }
+    }
+
+    private Task RequestReplaceAsync(AssetRowViewModel row)
+    {
+        ReplaceRequested?.Invoke(this, row);
+        return Task.CompletedTask;
+    }
+
+    public async Task ReplaceAssetAsync(AssetRowViewModel row, string newSourcePath)
     {
         if (AppServices.AssetService == null) return;
-        await AppServices.AssetService.RemoveFromCardAsync(row.Asset.Id);
-        AssetRows.Remove(row);
-        RebuildAssetColumns();
+        try
+        {
+            var assetType = row.Asset.AssetType ?? "reference";
+            await AppServices.AssetService.RemoveFromCardAsync(row.Asset.Id);
+            await AppServices.AssetService.ImportAsync(Model.Id, newSourcePath, assetType);
+            SetAssetStatus(Loc("Card.Asset.Status.Replaced", "Asset replaced"));
+            await ReloadAssetsAsync(CancellationToken.None);
+        }
+        catch (Exception ex) { SetAssetStatus("Error: " + ex.Message); }
     }
+
+    // ---------- Full screen ----------
+
+    private async Task OpenFullScreenAsync(AssetRowViewModel row)
+    {
+        if (!row.IsImage) return;
+        _fullScreenList = AssetRows.Where(a => a.IsImage).ToList();
+        var idx = _fullScreenList.IndexOf(row);
+        if (idx < 0) idx = 0;
+        FullScreenIndex = idx;
+        FullScreenTotal = _fullScreenList.Count;
+        FullScreenTitle = row.DisplayName;
+        FullScreenBitmap = row.FullBitmap;
+        IsFullScreenOpen = true;
+        if (row.FullBitmap == null)
+            await row.LoadFullBitmapAsync(FullScreenMaxDecodeWidth);
+        if (IsFullScreenOpen) FullScreenBitmap = row.FullBitmap;
+    }
+
+    private void CloseFullScreen()
+    {
+        IsFullScreenOpen = false;
+        FullScreenBitmap = null;
+        FullScreenTitle = string.Empty;
+        _fullScreenList = new List<AssetRowViewModel>();
+        FullScreenIndex = 0;
+        FullScreenTotal = 0;
+        // free memory from decoded full bitmaps
+        foreach (var r in AssetRows) r.ClearFullBitmap();
+    }
+
+    private async Task NavigateFullScreenAsync(int delta)
+    {
+        if (!IsFullScreenOpen) return;
+        if (_fullScreenList.Count < 2) return;
+        var next = (_fullScreenIndex + delta + _fullScreenList.Count) % _fullScreenList.Count;
+        var row = _fullScreenList[next];
+        FullScreenIndex = next;
+        FullScreenTitle = row.DisplayName;
+        FullScreenBitmap = row.FullBitmap;
+        if (row.FullBitmap == null)
+            await row.LoadFullBitmapAsync(FullScreenMaxDecodeWidth);
+        if (IsFullScreenOpen && ReferenceEquals(_fullScreenList[next], row))
+            FullScreenBitmap = row.FullBitmap;
+    }
+
+    // ---------- Tags ----------
 
     private async Task ReloadTagsAsync(CancellationToken ct)
     {
@@ -710,6 +950,18 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         catch { }
     }
 
+    private async Task RefreshTagCandidatesAsync(CancellationToken ct = default)
+    {
+        if (AppServices.TagService == null) return;
+        try
+        {
+            var all = await AppServices.TagService.GetAllWithUsageAsync(ct);
+            TagCandidates.Clear();
+            foreach (var t in all) TagCandidates.Add(t.Name);
+        }
+        catch { }
+    }
+
     private async Task AddTagAsync()
     {
         if (AppServices.TagService == null) return;
@@ -719,6 +971,7 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
             await AppServices.TagService.AddToModelAsync(Model.Id, NewTagName.Trim());
             NewTagName = string.Empty;
             await ReloadTagsAsync(CancellationToken.None);
+            await RefreshTagCandidatesAsync();
         }
         catch { }
     }
@@ -768,6 +1021,20 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
         Raise(nameof(NoEditorText));
         Raise(nameof(ThreeDStatusText));
         Raise(nameof(SaveStatusText));
+        Raise(nameof(OtherColumnHeader));
+        Raise(nameof(DropOtherHintText));
+        Raise(nameof(AssetOpenText));
+        Raise(nameof(AssetOpenExternalText));
+        Raise(nameof(AssetOpenInExplorerText));
+        Raise(nameof(AssetCopyPathText));
+        Raise(nameof(AssetReplaceText));
+        Raise(nameof(AssetRemoveText));
+        Raise(nameof(FullScreenCloseText));
+        Raise(nameof(FullScreenCounterText));
+        Raise(nameof(RemoveAssetConfirmTitle));
+        Raise(nameof(RemoveAssetConfirmMessage));
+        Raise(nameof(RemoveAssetConfirmButton));
+        Raise(nameof(RemoveAssetCancelButton));
     }
 
     private async Task SaveAsync()
@@ -781,7 +1048,6 @@ public class ModelCardPageViewModel : INotifyPropertyChanged
             Model.Difficulty = _difficultyValue > 0 ? (int?)_difficultyValue : null;
             Model.Notes = NullIfEmpty(Notes);
 
-            // Scale persistence
             if (float.TryParse(_realHeightMmText, NumberStyles.Float, CultureInfo.InvariantCulture, out var rh) && rh > 0)
                 Model.RealHeightMm = rh;
             else

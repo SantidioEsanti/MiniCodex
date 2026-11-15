@@ -1,4 +1,23 @@
-# Changelog
+﻿# Changelog
+
+## [0.1.3] - 2026-11-15
+
+### Added
+- Associated files (Associations tab): fullscreen viewer (double-click to open, Left/Right navigation, Esc to close). Each thumbnail has a context menu: Open (fullscreen), Open with default viewer, Open in Explorer, Copy path, Replace, Remove (with confirmation dialog).
+- Third "Other" section on Associations for render/document/profile asset types (128x128 thumbnails, icon fallback for non-images).
+- Multi-select in library grid: plain click, Ctrl+click (toggle), Shift+click (range), rubber-band on empty space (Ctrl additive). Esc clears selection, Ctrl+A selects all visible.
+- Group toolbar (visible when 2+ cards selected): Add tag (AutoCompleteBox), Copy paths, Find duplicates in selection, Remove selected (with confirmation), Clear.
+- Collection colors: 8-swatch context menu on each collection in the sidebar + Clear color. Migration 0005 adds Collection.color.
+- Tag autocomplete in Add tag dialogs (card tab + group dialog).
+- Delete-tag dialog: shows direct vs subtree usage breakdown.
+
+### Changed
+- Thumbnail single-click is selection; double-click opens fullscreen (was: single-click, reverted after 0.5.6a.2b).
+- Asset deduplication by original basename in AssetService.ImportAsync (idempotent re-import).
+
+### Fixed
+- Remove-asset confirmation dialog was missing in 0.5.6a.2 (VM state set, XAML overlay absent) - added in 0.5.6a.2b.
+- ru.json language-pack anchor after 0.5.6c was based on mojibake base64 - fixed via line-based ASCII anchors in 0.5.6c.1b.
 
 ## [0.1.2] - 2026-11-14
 
@@ -343,3 +362,125 @@
 - lang: TagContextMenu.CustomColor, ColorPickerDialog.* keys.
 
 <!-- patch 0.5.3c applied -->
+
+
+## 0.5.6a.1 - Associated files (backend + ViewModels)
+
+- AssetRowViewModel: callbacks for open/open-external/open-in-explorer/copy-path/replace; IsImage/IsDocument/IsProfile/AssetIconGlyph/FileSizeText/PathText; FullBitmap + LoadFullBitmapAsync(cap); ClearFullBitmap.
+- ModelCardPageViewModel: OtherAssets + HasOtherAssets; fullscreen state + navigation; OpenExternalAsync/OpenInExplorerAsync/CopyPathAsync; remove-confirm dialog; ReplaceRequested + ReplaceAssetAsync.
+- AssetService.ImportAsync: dedup by original basename (idempotent, no schema change).
+- lang/en.json: Card.Asset.* block.
+- XAML wiring deferred to 0.5.6a.2.
+<!-- patch 0.5.6a.1 applied -->
+
+## 0.5.6a.1b - Fix attempt for 0.5.6a.1 (did not apply)
+
+- Intended to fix AssetService.cs and ru.json; not applied (patch file was empty at run time, zero log output).
+<!-- patch 0.5.6a.1b applied -->
+
+## 0.5.6a.1c - Fix for 0.5.6a.1 / 0.5.6a.1b
+
+- AssetService.cs rebuilt from pristine 0.5.6a.1 backup; dedup block applied via single-quoted here-string (no \"). Post-write verification passed (no backslash-quote, dedup Log line present, File.Copy count == 1).
+- lang/ru.json: Card.Asset block inserted using ASCII anchors (AssetType / Status / },) + \uXXXX escapes decoded via MatchEvaluator. Verified with ConvertFrom-Json.
+- docs/HANDOFF.md: added sections 10.6 (patch output format; patch dir MUST equal version string), 10.7 (\" escaping lesson), 10.8 (Cyrillic in .ps1 without BOM).
+<!-- patch 0.5.6a.1c applied -->
+
+## 0.5.6a.1d - Compile fix for 0.5.6a.1
+
+- ModelCardPageViewModel._fullScreenList: IReadOnlyList<AssetRowViewModel> -> List<AssetRowViewModel>. IReadOnlyList<T> has no IndexOf; List<T> does. Initializers (field + CloseFullScreen) updated to new List<...>(). Behavior unchanged.
+<!-- patch 0.5.6a.1d applied -->
+
+## 0.5.6a.2 - Associated files (UI)
+
+- ModelCardView.axaml: fullscreen overlay (Border #E0000000, Focusable Grid with KeyBindings for Escape/Left/Right, Image Stretch=Uniform); content grid hidden when IsFullScreenOpen (prevents Skia 3D viewer overlaying the popup).
+- ModelCardView.axaml: ContextMenu on every thumbnail (Reference/Photo/Other) - Open (full screen), Open with default viewer, Open in Explorer, Copy path, Replace..., Remove.
+- ModelCardView.axaml: third "Other" section (render/document/profile) collapsed when empty; thumbnails 128x128 with icon fallback (AssetIconGlyph) and filename overlay.
+- ModelCardView.axaml.cs: ReplaceRequested handler (file picker -> vm.ReplaceAssetAsync); IsFullScreenOpen -> focus FullScreenGrid (guarantees overlay KeyBindings fire).
+- AssetRowViewModel.cs: 6 label properties (ContextOpenText/ContextOpenExternalText/ContextOpenInExplorerText/ContextCopyPathText/ContextReplaceText/ContextRemoveText) bound from ContextMenu items.
+<!-- patch 0.5.6a.2 applied -->
+
+## 0.5.6a.2b - UI fixes for 0.5.6a.2
+
+- ModelCardView.axaml: PointerPressed on every thumbnail Border -> left-click opens fullscreen (ignores clicks on the small X Button and right-clicks).
+- ModelCardView.axaml: added remove-asset confirmation overlay (layer 3, topmost). Previously ShowRemoveAssetConfirm state was set in VM but overlay was missing from XAML; X and context-menu Remove now ask for confirmation.
+- ModelCardView.axaml.cs: OnThumbnailPointerPressed handler; focus RemoveConfirmGrid on ShowRemoveAssetConfirm=true so Enter/Escape KeyBindings fire.
+<!-- patch 0.5.6a.2b applied -->
+
+## 0.5.6a.2c - Double-click to open image
+
+- ModelCardView.axaml.cs: OnThumbnailPointerPressed now requires e.ClickCount == 2. Single-click no longer opens fullscreen; double-click does. The small X Button still works via its own Click handler (it marks the pointer event Handled, our handler bails early). Context menu commands unchanged.
+<!-- patch 0.5.6a.2c applied -->
+
+## 0.5.6b.1 - Multi-select (backend + ViewModel)
+
+- ModelCardViewModel: IsSelected bool property with Raise.
+- LibraryViewModel: SelectedCards (ObservableCollection), GroupTagCandidates; SelectedCount/HasSelection/IsMultiSelection; OnCardClicked(card, ctrl, shift) public entry point; ClearSelection/SelectAllVisible; RefreshSelectionCollections.
+- LibraryViewModel group commands: GroupAddTagCommand (free-text tag name + candidates), GroupRemoveCommand (confirm), GroupCopyPathsCommand (clipboard, one per line), GroupFindDuplicatesCommand (in-place filter by file_hash intersection within selection).
+- LibraryViewModel dialog state: ShowGroupTagDialog / GroupTagName / ShowGroupRemoveConfirm / GroupRemoveMessage + 4 confirm/cancel commands.
+- Selection reset on ReloadModelsCoreAsync.
+- Deferred to 0.5.6c: GroupAddToCollection (requires manual-collection type).
+<!-- patch 0.5.6b.1 applied -->
+
+## 0.5.6b.1b - Fix for 0.5.6b.1 STEP 10/11
+
+- 0.5.6b.1 STEP 2-9 (C# ViewModel changes) applied cleanly. STEP 10 (lang/en.json) failed: anchor was normalized to LF while the file uses CRLF, so 0 matches.
+- 0.5.6b.1b applies only the lang + CHANGELOG parts using a newline-aware anchor ($nl detected from the file).
+- ModelCardViewModel.cs and LibraryViewModel.cs NOT touched by 0.5.6b.1b (verified in STEP 0).
+<!-- patch 0.5.6b.1b applied -->
+
+## 0.5.6b.2 - Multi-select (UI)
+
+- ModelCardTile.axaml: amber border (#E67E22, 2px) on IsSelected via Classes.selected style.
+- LibraryView.axaml: group toolbar (Row 1) visible when IsMultiSelection; buttons: Add tag / Copy paths / Find duplicates / Remove / Clear.
+- LibraryView.axaml: CardsHost Grid wraps ItemsControl and Canvas overlay (SelectionRect for rubber band); PointerPressed/Moved/Released handlers.
+- LibraryView.axaml: Esc + Ctrl+A KeyBindings; group dialogs (AutoCompleteBox for tag, red confirm for remove).
+- LibraryView.axaml.cs: full click pipeline - plain / Ctrl / Shift click, double-click open (400ms), right-click selection sync, rubber band on empty space with intersection-based selection, Ctrl-held additive mode.
+- LibraryViewModel/ModelCardViewModel plumbing: onClick callback, RefreshSelectionCollections public, HasAnyModalOpen guards on ClearSelection/SelectAllVisible, dialog guards in GroupAddTag/GroupRemoveAsync.
+- lang/en.json + lang/ru.json: Library.Group.Clear.
+<!-- patch 0.5.6b.2 applied -->
+
+## 0.5.6b.2b - Compile fix for 0.5.6b.2
+
+- LibraryView.axaml.cs: added using Avalonia.Controls.Presenters (CS0246 for ContentPresenter). Behavior unchanged.
+<!-- patch 0.5.6b.2b applied -->
+
+## 0.5.6c - Tags / Collections polish
+
+- Migration 0005: Collection.color column.
+- Entities.Collection: Color string?. ICollectionService.SetColorAsync implemented.
+- CollectionRepository: upsert + map color (FieldCount > 4 guard).
+- CollectionRow: rewritten with INotifyPropertyChanged, Color, ColorBrush, HasColor, Palette (8 presets), SetColorCommand, ClearColorCommand, OnColorChange callback.
+- LibraryViewModel: _tagDirectUsage dict; DeleteTagDialog shows direct vs subtree breakdown; LoadCollectionsAsync wires OnColorChange; ChangeCollectionColorAsync.
+- ModelCardPageViewModel: TagCandidates + RefreshTagCandidatesAsync (called in LoadAsync and AddTagAsync).
+- LibraryView.axaml: collections ListBox item template gets color dot + context menu (8 preset swatches + Clear color).
+- ModelCardView.axaml: New tag TextBox -> AutoCompleteBox (ItemsSource=TagCandidates).
+- lang/en.json + lang/ru.json: Library.DeleteTagDialog.Message -> 3-param format.
+<!-- patch 0.5.6c applied -->
+
+## 0.5.6c.1 - Fix for 0.5.6c
+
+- STEP 9e detection was too loose (matched lambda reference from STEP 9d). ChangeCollectionColorAsync method was never inserted; post-write verify aborted at STEP 9 and STEP 10-15 never ran.
+- Fix: strict detection, method inserted before ChangeTagColorAsync. STEP 10-15 re-executed.
+<!-- patch 0.5.6c.1 applied -->
+
+## 0.5.6c.1b - Fix for 0.5.6c.1 STEP 7
+
+- 0.5.6c.1 STEP 7 failed: base64 anchor for ru.json DeleteTagDialog.Message decoded to ":  <russian>" (missing the "Message" key name) - 0 matches.
+- 0.5.6c.1 STEP 2-6 applied cleanly. Not re-touched by this patch.
+- 0.5.6c.1b: replaces the DeleteTagDialog.Message line via line-based ASCII anchors (IndexOf "DeleteTagDialog" then "Message"); new line built via [char] codes so .ps1 source stays pure ASCII.
+<!-- patch 0.5.6c.1b applied -->
+
+## 0.5.7 - Release prep v0.1.3
+
+- MiniCodex.App.csproj: Version 0.1.2 -> 0.1.3, InformationalVersion 0.1.3.
+- CHANGELOG.md: [0.1.3] - 2026-11-15 section (Added/Changed/Fixed).
+- docs/HANDOFF.md: Document version 3.0 -> 3.1, current version v0.1.3, features list, migrations 0005_Collection_Color, Collection.color, removed stale deferred items and limitations, resolved open question about "Others" section, rewritten section 13 for v0.1.3 release, appended section 15 (Session 2026-11-15).
+<!-- patch 0.5.7 applied -->
+
+## 0.5.8 - Release prep v0.1.3 (docs)
+
+- docs/release-notes-v0.1.3.md: ready-to-paste GitHub Release body.
+- docs/RELEASE_CHECKLIST.md: reusable checklist for future releases.
+- Pre-flight verification: csproj 0.1.3, CHANGELOG [0.1.3], HANDOFF v3.1, build-release.ps1, docs/screenshots.
+- No source code touched. No tests affected.
+<!-- patch 0.5.8 applied -->

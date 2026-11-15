@@ -1,10 +1,20 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:MiniCodex.App.ViewModels"
              x:Class="MiniCodex.App.Views.ModelCardTile"
              x:DataType="vm:ModelCardViewModel" Margin="6,6,6,20" ClipToBounds="False">
     <!-- patch 0.5.0a2 applied -->
-    <Border Classes="card" Width="220" Height="260" Margin="6" Padding="6" CornerRadius="{DynamicResource CornerRadiusLarge}" BoxShadow="{DynamicResource CardShadow}" ClipToBounds="False">
+    <!-- patch 0.5.6b.2 applied -->
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        <Style Selector="Border.card.selected">
+            <Setter Property="BorderBrush" Value="#E67E22"/>
+        </Style>
+    </UserControl.Styles>
+    <Border Classes="card" Classes.selected="{Binding IsSelected}" Width="220" Height="260" Margin="6" Padding="6" CornerRadius="{DynamicResource CornerRadiusLarge}" BoxShadow="{DynamicResource CardShadow}" ClipToBounds="False">
         <Border.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="{Binding ContextMenuOpenCard}" Command="{Binding OpenCommand}"/>

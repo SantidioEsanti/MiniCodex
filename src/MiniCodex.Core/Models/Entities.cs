@@ -1,4 +1,4 @@
-namespace MiniCodex.Core.Models;
+﻿namespace MiniCodex.Core.Models;
 
 public class Model
 {
@@ -57,4 +57,5 @@ public class Collection
     public string Name { get; set; } = string.Empty;
     public string? FilterQuery { get; set; }
     public bool IsSmart { get; set; } = true;
+    public string? Color { get; set; }
 }

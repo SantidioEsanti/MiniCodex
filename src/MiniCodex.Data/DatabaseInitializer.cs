@@ -1,4 +1,4 @@
-using MiniCodex.Data.Migrations;
+﻿using MiniCodex.Data.Migrations;
 
 namespace MiniCodex.Data;
 
@@ -10,6 +10,7 @@ public static class DatabaseInitializer
         new Migration_0002_ModelFile_LastWriteTime(),
         new Migration_0003_ModelOrientation(),
         new Migration_0004_ModelFile_Hash(),
+        new Migration_0005_Collection_Color(),
     };
 
     public static int LatestSchemaVersion => Migrations.Max(m => m.Version);

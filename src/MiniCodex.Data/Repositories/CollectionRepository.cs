@@ -1,4 +1,4 @@
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using MiniCodex.Core.Models;
 using MiniCodex.Core.Repositories;
 
@@ -36,12 +36,13 @@ public class CollectionRepository : ICollectionRepository
         await using var conn = await _factory.OpenAsync(ct);
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-INSERT INTO Collection(id, name, filter_query, is_smart) VALUES($id, $name, $filter_query, $is_smart)
-ON CONFLICT(id) DO UPDATE SET name = excluded.name, filter_query = excluded.filter_query, is_smart = excluded.is_smart;";
+INSERT INTO Collection(id, name, filter_query, is_smart, color) VALUES($id, $name, $filter_query, $is_smart, $color)
+ON CONFLICT(id) DO UPDATE SET name = excluded.name, filter_query = excluded.filter_query, is_smart = excluded.is_smart, color = excluded.color;";
         cmd.Parameters.AddWithValue("$id", c.Id);
         cmd.Parameters.AddWithValue("$name", c.Name);
         cmd.Parameters.AddWithValue("$filter_query", (object?)c.FilterQuery ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$is_smart", c.IsSmart ? 1 : 0);
+        cmd.Parameters.AddWithValue("$color", (object?)c.Color ?? DBNull.Value);
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
@@ -60,5 +61,6 @@ ON CONFLICT(id) DO UPDATE SET name = excluded.name, filter_query = excluded.filt
         Name = r.GetString(1),
         FilterQuery = r.IsDBNull(2) ? null : r.GetString(2),
         IsSmart = r.GetInt32(3) != 0,
+        Color = r.FieldCount > 4 && !r.IsDBNull(4) ? r.GetString(4) : null,
     };
 }

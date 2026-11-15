@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:MiniCodex.App.ViewModels"
              xmlns:views="clr-namespace:MiniCodex.App.Views"
@@ -11,6 +11,12 @@
             <KeyBinding Gesture="Escape" Command="{Binding CancelRenameTagCommand}" />
             <KeyBinding Gesture="Enter" Command="{Binding ConfirmColorPickerCommand}" />
             <KeyBinding Gesture="Escape" Command="{Binding CancelColorPickerCommand}" />
+            <KeyBinding Gesture="Enter" Command="{Binding ConfirmGroupTagCommand}" />
+            <KeyBinding Gesture="Escape" Command="{Binding CancelGroupTagCommand}" />
+            <KeyBinding Gesture="Enter" Command="{Binding ConfirmGroupRemoveCommand}" />
+            <KeyBinding Gesture="Escape" Command="{Binding CancelGroupRemoveCommand}" />
+            <KeyBinding Gesture="Escape" Command="{Binding ClearSelectionCommand}" />
+            <KeyBinding Gesture="Ctrl+A" Command="{Binding SelectAllVisibleCommand}" />
         </Panel.KeyBindings>
         <Grid ColumnDefinitions="200,*" Background="Transparent">
             <Border Grid.Column="0" Background="{DynamicResource GlassPanelBackgroundBrush}" BorderBrush="{DynamicResource GlassPanelBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource CornerRadiusLarge}" Margin="8,8,4,8" Padding="8" BoxShadow="{DynamicResource GlassPanelShadow}">
@@ -87,15 +93,51 @@
                              MaxHeight="220">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"
-                                           VerticalAlignment="Center" Padding="4,2"/>
+                                <Grid ColumnDefinitions="Auto,*" Background="Transparent">
+                                    <Grid.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="{Binding ClearColorLabel}" Command="{Binding ClearColorCommand}"/>
+                                            <Separator/>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#E67E22">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#E67E22" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#E74C3C">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#E74C3C" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#F39C12">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#F39C12" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#2ECC71">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#2ECC71" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#3498DB">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#3498DB" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#9B59B6">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#9B59B6" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#95A5A6">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#95A5A6" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem Command="{Binding SetColorCommand}" CommandParameter="#34495E">
+                                                <MenuItem.Header><Border Width="16" Height="16" CornerRadius="8" Background="#34495E" Margin="4,2"/></MenuItem.Header>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                    <Ellipse Grid.Column="0" Width="8" Height="8" Margin="4,0,6,0"
+                                             VerticalAlignment="Center"
+                                             Fill="{Binding ColorBrush}"
+                                             IsVisible="{Binding HasColor}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center" Padding="0,2"/>
+                                </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="1" RowDefinitions="Auto,*" Background="Transparent">
+            <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*" Background="Transparent">
                 <Border Grid.Row="0" Background="{DynamicResource GlassPanelBackgroundBrush}" BorderBrush="{DynamicResource GlassPanelBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource CornerRadiusLarge}" Margin="8,8,8,4" Padding="8" BoxShadow="{DynamicResource GlassPanelShadow}">
             <StackPanel Orientation="Horizontal" Spacing="8">
                     <TextBox x:Name="SearchBox" Text="{Binding SearchQuery}"
@@ -110,25 +152,53 @@
                 </StackPanel>
             </Border>
 
-            <ScrollViewer Grid.Row="1" Background="Transparent" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding Cards}" Margin="4">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="vm:ModelCardViewModel">
-                            <views:ModelCardTile/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                </ScrollViewer>
+            <Border Grid.Row="1" IsVisible="{Binding IsMultiSelection}"
+                    Background="{DynamicResource GlassPanelBackgroundBrush}"
+                    BorderBrush="{DynamicResource GlassPanelBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{DynamicResource CornerRadiusLarge}"
+                    Margin="8,0,8,4" Padding="8,6"
+                    BoxShadow="{DynamicResource GlassPanelShadow}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding GroupSelectionStatusText}"
+                               FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Content="{Binding GroupAddTagMenuText}" Command="{Binding GroupAddTagCommand}"/>
+                    <Button Content="{Binding GroupCopyPathsMenuText}" Command="{Binding GroupCopyPathsCommand}"/>
+                    <Button Content="{Binding GroupFindDuplicatesMenuText}" Command="{Binding GroupFindDuplicatesCommand}"/>
+                    <Button Content="{Binding GroupRemoveMenuText}" Command="{Binding GroupRemoveCommand}"/>
+                    <Button Content="{Binding GroupClearText}" Command="{Binding ClearSelectionCommand}"/>
+                </StackPanel>
+            </Border>
 
-                <TextBlock Grid.Row="1" Text="{Binding EmptyStateText}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                           IsVisible="{Binding IsEmpty}"/>
+            <ScrollViewer Grid.Row="2" Background="Transparent" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <Grid x:Name="CardsHost" Background="Transparent"
+                      PointerPressed="OnCardsPointerPressed"
+                      PointerMoved="OnCardsPointerMoved"
+                      PointerReleased="OnCardsPointerReleased">
+                    <ItemsControl x:Name="CardsItemsControl" ItemsSource="{Binding Cards}" Margin="4">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:ModelCardViewModel">
+                                <views:ModelCardTile/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Canvas x:Name="SelectionCanvas" IsHitTestVisible="False">
+                        <Rectangle x:Name="SelectionRect" IsVisible="False"
+                                   Stroke="#E67E22" StrokeThickness="1"
+                                   Fill="#20E67E22"/>
+                    </Canvas>
+                </Grid>
+            </ScrollViewer>
+
+            <TextBlock Grid.Row="2" Text="{Binding EmptyStateText}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       IsVisible="{Binding IsEmpty}"/>
             </Grid>
         </Grid>
 
@@ -223,6 +293,45 @@
                         <Button Content="{Binding ColorPickerCancelText}" Command="{Binding CancelColorPickerCommand}" IsCancel="True" Padding="14,8"/>
                         <Button Content="{Binding ColorPickerSaveText}" Command="{Binding ConfirmColorPickerCommand}" IsDefault="True"
                                 Background="#E67E22" Foreground="White" Padding="14,8"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- 0.5.6b.2: Group tag dialog -->
+        <Border IsVisible="{Binding ShowGroupTagDialog}" Background="#80000000">
+            <Border Background="{DynamicResource CardBackgroundBrush}"
+                    CornerRadius="8" Padding="24" MaxWidth="440"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    BoxShadow="0 8 24 0 #50000000">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="{Binding GroupTagDialogTitle}" FontSize="18" FontWeight="Bold"/>
+                    <AutoCompleteBox ItemsSource="{Binding GroupTagCandidates}"
+                                     Text="{Binding GroupTagName, Mode=TwoWay}"
+                                     Watermark="{Binding GroupTagDialogPlaceholder}"
+                                     MinWidth="320"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="{Binding GroupTagDialogCancelText}" Command="{Binding CancelGroupTagCommand}" Padding="14,8"/>
+                        <Button Content="{Binding GroupTagDialogAddText}" Command="{Binding ConfirmGroupTagCommand}"
+                                Background="#E67E22" Foreground="White" Padding="14,8"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- 0.5.6b.2: Group remove confirm -->
+        <Border IsVisible="{Binding ShowGroupRemoveConfirm}" Background="#80000000">
+            <Border Background="{DynamicResource CardBackgroundBrush}"
+                    CornerRadius="8" Padding="24" MaxWidth="480"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    BoxShadow="0 8 24 0 #50000000">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="{Binding GroupRemoveDialogTitle}" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding GroupRemoveMessage}" TextWrapping="Wrap" MaxWidth="440"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="{Binding GroupRemoveDialogCancelText}" Command="{Binding CancelGroupRemoveCommand}" Padding="14,8"/>
+                        <Button Content="{Binding GroupRemoveDialogRemoveText}" Command="{Binding ConfirmGroupRemoveCommand}"
+                                Background="#E74C3C" Foreground="White" Padding="14,8"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
